@@ -31,9 +31,9 @@ resource "azurerm_storage_share_directory" "bootstrap-storage-directories" {
     "content",
     "software",
     "license"])
+  name = each.key
   share_name = azurerm_storage_share.bootstrap-storage-share.name
   storage_account_name = azurerm_storage_account.bootstrap-storage-account.name
-  name = each.key
 }
 
 resource "azurerm_storage_share_directory" "bootstrap-config-directory" {
