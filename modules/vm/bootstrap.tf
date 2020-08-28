@@ -27,9 +27,24 @@ resource "azurerm_storage_share" "bootstrap-storage-share" {
 }
 
 resource "azurerm_storage_share_directory" "bootstrap-storage-directories" {
-  for_each = toset(["config", "content", "software", "license"])
+  for_each = toset([
+    "content",
+    "software",
+    "license"])
   share_name = azurerm_storage_share.bootstrap-storage-share.name
   storage_account_name = azurerm_storage_account.bootstrap-storage-account.name
   name = each.key
+}
 
+resource "azurerm_storage_share_directory" "bootstrap-config-directory" {
+  share_name = azurerm_storage_share.bootstrap-storage-share.name
+  storage_account_name = azurerm_storage_account.bootstrap-storage-account.name
+  name = "config"
+}
+
+resource "null_resource" "uploadfile" {
+  provisioner "local-exec" {
+    command = "az storage file upload --account-name ${azurerm_storage_account.bootstrap-storage-account.name} --account-key ${azurerm_storage_account.bootstrap-storage-account.primary_access_key} --share-name ${azurerm_storage_share.bootstrap-storage-share.name} --source .\\bootstrap_configs\\init-cfg.txt --path config/init-cfg.txt"
+  }
+  depends_on = [azurerm_storage_share_directory.bootstrap-config-directory]
 }
