@@ -10,3 +10,7 @@ variable "panorama_size" {
   description = "Default size for Panorama"
   default = "Standard_D5_v2"
 }
+
+variable "management_ips" {
+  type = map(any)
+}

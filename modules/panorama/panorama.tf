@@ -18,6 +18,37 @@ resource "azurerm_subnet" "subnet-mgmt" {
   virtual_network_name = azurerm_virtual_network.vnet-mgmt.name
 }
 
+
+resource "azurerm_network_security_group" "sg-mgmt" {
+  location = azurerm_resource_group.panorama.location
+  name = "${var.name_prefix}-sg-mgmt"
+  resource_group_name = azurerm_resource_group.panorama.name
+}
+
+
+resource "azurerm_network_security_rule" "management-rules" {
+  for_each = var.management_ips
+  name = "${var.name_prefix}-mgmt-sgrule-${each.key}-22"
+  resource_group_name = azurerm_resource_group.panorama.name
+  access = "Allow"
+  direction = "Inbound"
+  network_security_group_name = azurerm_network_security_group.sg-mgmt.name
+  priority = each.value
+  protocol = "Tcp"
+  source_port_range = "*"
+  source_address_prefix = each.key
+  destination_address_prefix = "0.0.0.0/0"
+  destination_port_range = "22"
+}
+
+# Create a public IP for management
+resource "azurerm_public_ip" "panorama-pip-mgmt" {
+  allocation_method = "Static"
+  location = azurerm_resource_group.panorama.location
+  name = "${var.name_prefix}-panorama-pip"
+  resource_group_name = azurerm_resource_group.panorama.name
+}
+
 # Build the management interface
 resource "azurerm_network_interface" "mgmt" {
   location = azurerm_resource_group.panorama.location
@@ -28,8 +59,10 @@ resource "azurerm_network_interface" "mgmt" {
     name = "${var.name_prefix}-ip-mgmt"
     private_ip_address_allocation = "static"
     private_ip_address = "10.10.10.10"
+    public_ip_address_id = azurerm_public_ip.panorama-pip-mgmt.id
   }
 }
+
 
 # Build the Panorama VM
 resource "azurerm_virtual_machine" "panorama" {

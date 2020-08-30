@@ -20,11 +20,17 @@ variable "name_prefix" {
   default = "pantf"
 }
 
+variable "management_ips" {
+  type = map(any)
+  description = "A list of IP addresses and/or subnets that are permitted to access the out of band Management network"
+}
+
 module "panorama" {
   source = "./modules/panorama"
 
   location = var.location
   name_prefix = var.name_prefix
+  management_ips = var.management_ips
 }
 
 module "vm-series" {
@@ -36,4 +42,8 @@ module "vm-series" {
 
 output "MGMT-VNET" {
   value = module.panorama.vnet-name
+}
+
+output "PANORAMA-IP" {
+  value = module.panorama.panorama-publicip
 }
