@@ -95,6 +95,7 @@ resource "azurerm_virtual_machine" "fw" {
     caching = "ReadWrite"
     vhd_uri = "${azurerm_storage_account.bootstrap-storage-account.primary_blob_endpoint}vhds/${var.name_prefix}-fw.vhd"
   }
+
   primary_network_interface_id = azurerm_network_interface.nic-fw-mgmt.id
   os_profile {
     admin_username = "panadmin"
@@ -104,4 +105,13 @@ resource "azurerm_virtual_machine" "fw" {
   os_profile_linux_config {
     disable_password_authentication = false
   }
+  plan {
+    name = "byol"
+    publisher = "paloaltonetworks"
+    product = "vmseries1"
+  }
+  depends_on = [
+    azurerm_storage_account.bootstrap-storage-account,
+    azurerm_storage_share.bootstrap-storage-share
+  ]
 }
