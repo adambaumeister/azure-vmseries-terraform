@@ -25,6 +25,7 @@ variable "management_ips" {
   description = "A list of IP addresses and/or subnets that are permitted to access the out of band Management network"
 }
 
+# Create a panorama instance
 module "panorama" {
   source = "./modules/panorama"
 
@@ -33,6 +34,7 @@ module "panorama" {
   management_ips = var.management_ips
 }
 
+# create a vm-series fw
 module "vm-series" {
   source = "./modules/vm"
 
