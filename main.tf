@@ -40,6 +40,8 @@ module "vm-series" {
 
   location = var.location
   name_prefix = var.name_prefix
+  management_ips = var.management_ips
+
 }
 
 output "MGMT-VNET" {
@@ -48,4 +50,8 @@ output "MGMT-VNET" {
 
 output "PANORAMA-IP" {
   value = module.panorama.panorama-publicip
+}
+
+output "VM-IP" {
+  value = module.vm-series.ip
 }

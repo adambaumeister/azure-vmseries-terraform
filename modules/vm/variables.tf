@@ -10,3 +10,7 @@ variable "vmseries_size" {
   description = "Default size for VM series"
   default = "Standard_D5_v2"
 }
+
+variable "management_ips" {
+  type = map(any)
+}

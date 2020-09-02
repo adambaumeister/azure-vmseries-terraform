@@ -15,12 +15,40 @@ resource "azurerm_virtual_network" "vnet-vmseries" {
   resource_group_name = azurerm_resource_group.vmseries.name
 }
 
+
 resource "azurerm_subnet" "subnet-mgmt" {
   name = "${var.name_prefix}-net-vmseries-mgmt"
   address_prefix = "172.16.0.0/24"
   resource_group_name = azurerm_resource_group.vmseries.name
   virtual_network_name = azurerm_virtual_network.vnet-vmseries.name
 }
+
+resource "azurerm_network_security_group" "sg-mgmt" {
+  location = azurerm_resource_group.vmseries.location
+  name = "${var.name_prefix}-sg-vmmgmt"
+  resource_group_name = azurerm_resource_group.vmseries.name
+}
+
+resource "azurerm_subnet_network_security_group_association" "mgmt-sa" {
+  network_security_group_id = azurerm_network_security_group.sg-mgmt.id
+  subnet_id = azurerm_subnet.subnet-mgmt.id
+}
+
+resource "azurerm_network_security_rule" "management-rules" {
+  for_each = var.management_ips
+  name = "${var.name_prefix}-mgmt-sgrule-${each.key}-22"
+  resource_group_name = azurerm_resource_group.vmseries.name
+  access = "Allow"
+  direction = "Inbound"
+  network_security_group_name = azurerm_network_security_group.sg-mgmt.name
+  priority = each.value
+  protocol = "Tcp"
+  source_port_range = "*"
+  source_address_prefix = each.key
+  destination_address_prefix = "0.0.0.0/0"
+  destination_port_range = "*"
+}
+
 
 resource "azurerm_network_interface" "nic-fw-mgmt" {
   location = azurerm_resource_group.vmseries.location
@@ -96,11 +124,21 @@ resource "azurerm_virtual_machine" "fw" {
     vhd_uri = "${azurerm_storage_account.bootstrap-storage-account.primary_blob_endpoint}vhds/${var.name_prefix}-fw.vhd"
   }
 
+
   primary_network_interface_id = azurerm_network_interface.nic-fw-mgmt.id
   os_profile {
     admin_username = "panadmin"
     computer_name = "${var.name_prefix}-fw"
     admin_password = "NicePassword!"
+    custom_data = join(
+            ",",
+            [
+              "storage-account=${azurerm_storage_account.bootstrap-storage-account.name}",
+              "access-key=${azurerm_storage_account.bootstrap-storage-account.primary_access_key}",
+              "file-share=${azurerm_storage_share.bootstrap-storage-share.name}",
+              "share-directory=None"
+            ]
+      )
   }
   os_profile_linux_config {
     disable_password_authentication = false
@@ -112,6 +150,7 @@ resource "azurerm_virtual_machine" "fw" {
   }
   depends_on = [
     azurerm_storage_account.bootstrap-storage-account,
-    azurerm_storage_share.bootstrap-storage-share
+    azurerm_storage_share.bootstrap-storage-share,
+    null_resource.uploadfile
   ]
 }
