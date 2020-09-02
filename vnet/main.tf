@@ -1,5 +1,5 @@
 # Configure the Azure Provider
-provider "azurerm" {
+provider "hashicorp/azurerm" {
    version = "=2.20.0"
   features {}
 }
