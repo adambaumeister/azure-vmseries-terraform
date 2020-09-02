@@ -12,7 +12,7 @@ resource "azurerm_resource_group" "rg1" {
 
 #Create management network security group
 resource "azurerm_network_security_group" "nsg1" {
-  name                = "{var.rg1}-{var.vnet1}-mgmt-nsg"
+  name                = "{var.azurerm_resource_group.rg1.name}-{var.azurerm_virtual_network.vnet1.name}-mgmt-nsg"
   location            = azurerm_resource_group.rg1.location
   resource_group_name = azurerm_resource_group.rg1.name
 }
