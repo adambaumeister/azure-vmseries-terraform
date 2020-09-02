@@ -12,7 +12,7 @@ resource "azurerm_resource_group" "rg1" {
 
 #Create management network security group
 resource "azurerm_network_security_group" "nsg1" {
-  name                = "rg1-vnet1-mgmt-nsg"
+  name                = "vnet1-mgmt-nsg"
   location            = azurerm_resource_group.rg1.location
   resource_group_name = azurerm_resource_group.rg1.name
 }
@@ -22,7 +22,7 @@ resource "azurerm_virtual_network" "vnet1" {
   name                = "pstajewski-vnet1"
   location            = azurerm_resource_group.rg1.location
   resource_group_name = azurerm_resource_group.rg1.name
-  address_space       = ["10.1.1.0/16"]
+  address_space       = ["10.1.0.0/16"]
 #  dns_servers         = ["10.0.0.4", "10.0.0.5"]
 
   subnet {
