@@ -113,7 +113,7 @@ resource "azurerm_virtual_machine" "fw" {
   storage_image_reference {
     publisher = "paloaltonetworks"
     offer     = "vmseries1"
-    sku       = "byol"
+    sku       = "bundle2"
     version   = "9.0.4"
   }
 
@@ -144,7 +144,7 @@ resource "azurerm_virtual_machine" "fw" {
     disable_password_authentication = false
   }
   plan {
-    name = "byol"
+    name = "bundle2"
     publisher = "paloaltonetworks"
     product = "vmseries1"
   }
