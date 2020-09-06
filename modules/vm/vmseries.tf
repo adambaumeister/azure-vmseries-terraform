@@ -21,6 +21,8 @@ resource "azurerm_subnet" "subnet-mgmt" {
   address_prefix = "172.16.0.0/24"
   resource_group_name = azurerm_resource_group.vmseries.name
   virtual_network_name = azurerm_virtual_network.vnet-vmseries.name
+  network_security_group_id = azurerm_network_security_group.sg-mgmt.id
+
 }
 
 resource "azurerm_network_security_group" "sg-mgmt" {
@@ -32,6 +34,7 @@ resource "azurerm_network_security_group" "sg-mgmt" {
 resource "azurerm_subnet_network_security_group_association" "mgmt-sa" {
   network_security_group_id = azurerm_network_security_group.sg-mgmt.id
   subnet_id = azurerm_subnet.subnet-mgmt.id
+
 }
 
 resource "azurerm_network_security_rule" "management-rules" {

@@ -19,6 +19,12 @@ variable "name_prefix" {
   description = "A prefix for all naming conventions - used globally"
   default = "pantf"
 }
+variable "rules" {
+  type = list(object({
+    port = number
+    nat_ip = string
+  }))
+}
 
 variable "management_ips" {
   type = map(any)
@@ -26,7 +32,7 @@ variable "management_ips" {
 }
 
 # Create a panorama instance
-module "panorama" {
+module  "panorama" {
   source = "./modules/panorama"
 
   location = var.location
@@ -42,6 +48,18 @@ module "vm-series" {
   name_prefix = var.name_prefix
   management_ips = var.management_ips
 
+}
+
+# create a vm-series fw
+module "inbound-lb" {
+  source = "./modules/lbs"
+
+  location = var.location
+  name_prefix = var.name_prefix
+  rules = var.rules
+  backend-nics = toset([
+        module.vm-series.outside-nic
+  ])
 }
 
 output "MGMT-VNET" {

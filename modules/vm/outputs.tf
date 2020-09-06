@@ -17,3 +17,16 @@ output "subnet-mgmt" {
 output "mgmt-nsg" {
   value = azurerm_network_security_group.sg-mgmt
 }
+
+output "inside-ip" {
+  value = azurerm_network_interface.nic-fw-inside.private_ip_address
+}
+
+output "outside-ip" {
+  value = azurerm_network_interface.nic-fw-outside.private_ip_address
+}
+
+output "outside-nic" {
+  //value = azurerm_network_interface.nic-fw-outside.ip_configuration[0].name
+  value = azurerm_network_interface.nic-fw-outside
+}
