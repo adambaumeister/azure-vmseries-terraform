@@ -6,13 +6,6 @@ variable "name_prefix" {
   description = "Prefix to add to all the object names here"
 }
 
-variable "rules" {
-  type = list(object({
-    port = number
-    nat_ip = string
-  }))
-}
+variable "peer-vnet" {}
 
-variable "backend-nics" {
-}
-
+variable "admin-password" {}

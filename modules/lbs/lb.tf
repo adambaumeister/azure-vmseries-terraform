@@ -37,6 +37,14 @@ resource "azurerm_network_interface_backend_address_pool_association" "lb-backen
   backend_address_pool_id = azurerm_lb_backend_address_pool.lb-backend.id
   ip_configuration_name = each.value.ip_configuration[0].name
   network_interface_id = each.value.id
+
+}
+
+resource "azurerm_lb_probe" "probe" {
+  loadbalancer_id = azurerm_lb.lb.id
+  name = "${var.name_prefix}-lb-probe-80"
+  port = 80
+  resource_group_name = azurerm_resource_group.rg-lb.name
 }
 
 resource "azurerm_lb_rule" "lb-rules" {
@@ -50,4 +58,6 @@ resource "azurerm_lb_rule" "lb-rules" {
   resource_group_name = azurerm_resource_group.rg-lb.name
   enable_floating_ip = true
   backend_address_pool_id = azurerm_lb_backend_address_pool.lb-backend.id
+  probe_id = azurerm_lb_probe.probe.id
+
 }

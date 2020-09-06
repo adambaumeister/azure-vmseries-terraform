@@ -25,6 +25,9 @@ variable "rules" {
     nat_ip = string
   }))
 }
+variable "admin-password" {
+  description = "Admin password to use for all systems"
+}
 
 variable "management_ips" {
   type = map(any)
@@ -60,6 +63,15 @@ module "inbound-lb" {
   backend-nics = toset([
         module.vm-series.outside-nic
   ])
+}
+
+# Create a test-host for validation
+module "test-host" {
+  source = "./modules/test-vnet"
+  location = var.location
+  name_prefix = var.name_prefix
+  peer-vnet = module.vm-series.vnet
+  admin-password = var.admin-password
 }
 
 output "MGMT-VNET" {
