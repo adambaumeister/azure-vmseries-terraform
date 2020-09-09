@@ -26,7 +26,16 @@ output "outside-ip" {
   value = azurerm_network_interface.nic-fw-outside.private_ip_address
 }
 
+# The nic that sits on the "outside" or "external" network
 output "outside-nic" {
-  //value = azurerm_network_interface.nic-fw-outside.ip_configuration[0].name
   value = azurerm_network_interface.nic-fw-outside
+}
+
+# The nic that sits on the "inside" or "internal" network
+output "inside-nic" {
+  value = azurerm_network_interface.nic-fw-inside
+}
+
+output "inside-subnet" {
+  value = azurerm_subnet.subnet-inside
 }

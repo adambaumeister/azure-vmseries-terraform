@@ -5,6 +5,7 @@ resource "azurerm_public_ip" "pip-fw-mgmt" {
   allocation_method = "Static"
   location = azurerm_resource_group.vmseries.location
   name = "${var.name_prefix}-fw-pip"
+  sku = "standard"
   resource_group_name = azurerm_resource_group.vmseries.name
 }
 

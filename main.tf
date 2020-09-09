@@ -8,31 +8,7 @@ terraform {
   }
 }
 
-# Setup the variables we need...
-variable "location" {
-  type = string
-  description = "The Azure region to use."
-  default = "Australia Central"
-}
-variable "name_prefix" {
-  type = string
-  description = "A prefix for all naming conventions - used globally"
-  default = "pantf"
-}
-variable "rules" {
-  type = list(object({
-    port = number
-    nat_ip = string
-  }))
-}
-variable "admin-password" {
-  description = "Admin password to use for all systems"
-}
 
-variable "management_ips" {
-  type = map(any)
-  description = "A list of IP addresses and/or subnets that are permitted to access the out of band Management network"
-}
 
 # Create a panorama instance
 module  "panorama" {
@@ -53,7 +29,7 @@ module "vm-series" {
 
 }
 
-# create a vm-series fw
+# Deploy the inbound load balancer for traffic into the azure environment
 module "inbound-lb" {
   source = "./modules/lbs"
 
@@ -65,6 +41,18 @@ module "inbound-lb" {
   ])
 }
 
+# Deploy the outbound load balancer for traffic out of the azure environment
+module "outbound-lb" {
+  source = "./modules/olb"
+  location = var.location
+  name_prefix = var.name_prefix
+  backend-nics = toset([
+    module.vm-series.inside-nic
+  ])
+  private-ip = var.olb-private-ip
+  backend-subnet = module.vm-series.inside-subnet.id
+}
+
 # Create a test-host for validation
 module "test-host" {
   source = "./modules/test-vnet"
@@ -72,6 +60,16 @@ module "test-host" {
   name_prefix = var.name_prefix
   peer-vnet = module.vm-series.vnet
   admin-password = var.admin-password
+}
+
+module "onboard-test-vnet" {
+  source = "./modules/onboard-vnet"
+  lb-ip = var.olb-private-ip
+  remote-vnet = module.test-host.vnet
+  transit-vnet = module.vm-series.vnet
+  remote-subnet = module.test-host.subnet
+  location = var.location
+  name_prefix = var.name_prefix
 }
 
 output "MGMT-VNET" {

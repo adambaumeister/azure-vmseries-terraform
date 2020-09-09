@@ -1,37 +1,28 @@
 # Sets up an Azure LB and associated rules
-# This configures an INBOUND LB with public addressing.
+# This sets up an OUTBOUND LB and associated rules
+# It does not have a public IP associated with it.
 
 resource "azurerm_resource_group" "rg-lb" {
   location = var.location
-  name = "${var.name_prefix}-lb-rg"
-}
-
-resource "azurerm_public_ip" "lb-fip-pip" {
-  for_each = { for rule in var.rules : rule.port => rule }
-  allocation_method = "Static"
-  sku = "standard"
-  location = azurerm_resource_group.rg-lb.location
-  name = "${var.name_prefix}-${each.value.port}"
-  resource_group_name = azurerm_resource_group.rg-lb.name
+  name = "${var.name_prefix}-olb-rg"
 }
 
 resource "azurerm_lb" "lb" {
   location = var.location
-  name = "${var.name_prefix}-lb"
+  name = "${var.name_prefix}-olb"
   resource_group_name = azurerm_resource_group.rg-lb.name
   sku = "standard"
-  dynamic "frontend_ip_configuration" {
-    for_each = azurerm_public_ip.lb-fip-pip
-    content {
-      name = "${var.name_prefix}-lb-fip"
-      public_ip_address_id = frontend_ip_configuration.value.id
-    }
+  frontend_ip_configuration {
+    name = "${var.name_prefix}-olb-fip"
+    private_ip_address = var.private-ip
+    subnet_id = var.backend-subnet
+    private_ip_address_allocation = "Static"
   }
 }
 
 resource "azurerm_lb_backend_address_pool" "lb-backend" {
   loadbalancer_id = azurerm_lb.lb.id
-  name = "${var.name_prefix}-lb-backend"
+  name = "${var.name_prefix}-olb-backend"
   resource_group_name = azurerm_resource_group.rg-lb.name
 }
 
@@ -45,19 +36,19 @@ resource "azurerm_network_interface_backend_address_pool_association" "lb-backen
 
 resource "azurerm_lb_probe" "probe" {
   loadbalancer_id = azurerm_lb.lb.id
-  name = "${var.name_prefix}-lb-probe-80"
+  name = "${var.name_prefix}-olb-probe-80"
   port = 80
   resource_group_name = azurerm_resource_group.rg-lb.name
 }
 
+# This LB rule forwards all traffic on all ports to the provided backend servers.
 resource "azurerm_lb_rule" "lb-rules" {
-  for_each = { for rule in var.rules : rule.port => rule }
-  backend_port = each.value.port
-  frontend_ip_configuration_name = "${var.name_prefix}-lb-fip"
-  frontend_port = each.value.port
+  backend_port = 0
+  frontend_ip_configuration_name = "${var.name_prefix}-olb-fip"
+  frontend_port = 0
   loadbalancer_id = azurerm_lb.lb.id
-  name = "${each.value.nat_ip}-lbrule"
-  protocol = "Tcp"
+  name = "${azurerm_lb.lb.name}-lbrule-all"
+  protocol = "All"
   resource_group_name = azurerm_resource_group.rg-lb.name
   enable_floating_ip = true
   backend_address_pool_id = azurerm_lb_backend_address_pool.lb-backend.id
