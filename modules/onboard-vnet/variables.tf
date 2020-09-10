@@ -6,10 +6,6 @@ variable "name_prefix" {
   description = "Prefix to add to all the object names here"
 }
 
-variable "transit-vnet" {
-  description = "Transit or hub VNET to connect to"
-}
-
 variable "remote-vnet" {
   description = "Remote or spoke VNET to connect from"
 }

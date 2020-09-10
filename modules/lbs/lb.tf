@@ -23,7 +23,7 @@ resource "azurerm_lb" "lb" {
   dynamic "frontend_ip_configuration" {
     for_each = azurerm_public_ip.lb-fip-pip
     content {
-      name = "${var.name_prefix}-lb-fip"
+      name = "${frontend_ip_configuration.value.name}-fip"
       public_ip_address_id = frontend_ip_configuration.value.id
     }
   }
@@ -48,12 +48,13 @@ resource "azurerm_lb_probe" "probe" {
   name = "${var.name_prefix}-lb-probe-80"
   port = 80
   resource_group_name = azurerm_resource_group.rg-lb.name
+
 }
 
 resource "azurerm_lb_rule" "lb-rules" {
   for_each = { for rule in var.rules : rule.port => rule }
   backend_port = each.value.port
-  frontend_ip_configuration_name = "${var.name_prefix}-lb-fip"
+  frontend_ip_configuration_name = "${var.name_prefix}-${each.value.port}-fip"
   frontend_port = each.value.port
   loadbalancer_id = azurerm_lb.lb.id
   name = "${each.value.nat_ip}-lbrule"

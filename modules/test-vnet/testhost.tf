@@ -21,6 +21,7 @@ resource "azurerm_subnet" "subnet" {
   virtual_network_name = azurerm_virtual_network.vnet.name
   network_security_group_id = azurerm_network_security_group.nsg.id
   address_prefix = "10.100.100.0/26"
+  route_table_id = var.route-table-id
 }
 
 # Create public IPs
@@ -151,4 +152,11 @@ resource "azurerm_virtual_network_peering" "fw-testhost-peer" {
   resource_group_name = var.peer-vnet.resource_group_name
   virtual_network_name = var.peer-vnet.name
   allow_virtual_network_access = true
+}
+
+
+# asssign the route table to the remote/spoke VNET
+resource "azurerm_subnet_route_table_association" "rta" {
+  route_table_id = var.route-table-id
+  subnet_id = azurerm_subnet.subnet.id
 }

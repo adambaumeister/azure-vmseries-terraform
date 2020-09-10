@@ -11,9 +11,3 @@ resource "azurerm_route_table" "rt" {
     next_hop_in_ip_address = var.lb-ip
   }
 }
-
-# asssign the route table to the remote/spoke VNET
-resource "azurerm_subnet_route_table_association" "rta" {
-  route_table_id = azurerm_route_table.rt.id
-  subnet_id = var.remote-subnet.id
-}

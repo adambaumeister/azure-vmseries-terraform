@@ -53,6 +53,15 @@ module "outbound-lb" {
   backend-subnet = module.vm-series.inside-subnet.id
 }
 
+module "onboard-test-vnet" {
+  source = "./modules/onboard-vnet"
+  lb-ip = var.olb-private-ip
+  remote-vnet = module.test-host.vnet
+  remote-subnet = module.test-host.subnet
+  location = var.location
+  name_prefix = var.name_prefix
+}
+
 # Create a test-host for validation
 module "test-host" {
   source = "./modules/test-vnet"
@@ -60,17 +69,9 @@ module "test-host" {
   name_prefix = var.name_prefix
   peer-vnet = module.vm-series.vnet
   admin-password = var.admin-password
+  route-table-id = module.onboard-test-vnet.route-table-id
 }
 
-module "onboard-test-vnet" {
-  source = "./modules/onboard-vnet"
-  lb-ip = var.olb-private-ip
-  remote-vnet = module.test-host.vnet
-  transit-vnet = module.vm-series.vnet
-  remote-subnet = module.test-host.subnet
-  location = var.location
-  name_prefix = var.name_prefix
-}
 
 output "MGMT-VNET" {
   value = module.panorama.vnet-name

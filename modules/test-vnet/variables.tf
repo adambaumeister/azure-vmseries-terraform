@@ -9,3 +9,5 @@ variable "name_prefix" {
 variable "peer-vnet" {}
 
 variable "admin-password" {}
+
+variable "route-table-id" {}
