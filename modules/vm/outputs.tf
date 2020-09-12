@@ -39,3 +39,4 @@ output "inside-nic" {
 output "inside-subnet" {
   value = azurerm_subnet.subnet-inside
 }
+
