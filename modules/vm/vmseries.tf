@@ -8,6 +8,14 @@ resource "azurerm_public_ip" "pip-fw-mgmt" {
   sku = "standard"
   resource_group_name = azurerm_resource_group.vmseries.name
 }
+# Create another PIP for the outside interface so we can talk outbound
+resource "azurerm_public_ip" "pip-fw-outside" {
+  allocation_method = "Static"
+  location = azurerm_resource_group.vmseries.location
+  name = "${var.name_prefix}-outside-fw-pip"
+  sku = "standard"
+  resource_group_name = azurerm_resource_group.vmseries.name
+}
 
 resource "azurerm_virtual_network" "vnet-vmseries" {
   address_space = ["172.16.0.0/16"]
@@ -72,6 +80,7 @@ resource "azurerm_subnet" "subnet-inside" {
   address_prefix = "172.16.1.0/24"
   resource_group_name = azurerm_resource_group.vmseries.name
   virtual_network_name = azurerm_virtual_network.vnet-vmseries.name
+  network_security_group_id = azurerm_network_security_group.sg-inside.id
 }
 resource "azurerm_network_interface" "nic-fw-inside" {
   location = azurerm_resource_group.vmseries.location
@@ -121,9 +130,50 @@ resource "azurerm_network_security_rule" "outside-allowall-outbound" {
 }
 
 
+# Permit All traffic in Inside VNET
+# Unsure if this is needed
+resource "azurerm_network_security_group" "sg-inside" {
+  location = azurerm_resource_group.vmseries.location
+  name = "${var.name_prefix}-sg-inside"
+  resource_group_name = azurerm_resource_group.vmseries.name
+}
+resource "azurerm_network_security_rule" "inside-allowall-inbound" {
+  name = "${var.name_prefix}-i-sgrule-allowin"
+  resource_group_name = azurerm_resource_group.vmseries.name
+  access = "Allow"
+  direction = "Inbound"
+  network_security_group_name = azurerm_network_security_group.sg-inside.name
+  priority = 100
+  protocol = "*"
+  source_port_range = "*"
+  source_address_prefix = "*"
+  destination_address_prefix = "*"
+  destination_port_range = "*"
+}
+resource "azurerm_network_security_rule" "inside-allowall-outbound" {
+  name = "${var.name_prefix}-i-sgrule-allowout"
+  resource_group_name = azurerm_resource_group.vmseries.name
+  access = "Allow"
+  direction = "Outbound"
+  network_security_group_name = azurerm_network_security_group.sg-inside.name
+  priority = 101
+  protocol = "*"
+  source_port_range = "*"
+  source_address_prefix = "*"
+  destination_address_prefix = "*"
+  destination_port_range = "*"
+}
+
+
+
 resource "azurerm_subnet_network_security_group_association" "sg-outside-associate" {
   network_security_group_id = azurerm_network_security_group.sg-outside.id
   subnet_id = azurerm_subnet.subnet-outside.id
+}
+
+resource "azurerm_subnet_network_security_group_association" "sg-inside-associate" {
+  network_security_group_id = azurerm_network_security_group.sg-inside.id
+  subnet_id = azurerm_subnet.subnet-inside.id
 }
 
 resource "azurerm_subnet" "subnet-outside" {
@@ -133,6 +183,7 @@ resource "azurerm_subnet" "subnet-outside" {
   virtual_network_name =  azurerm_virtual_network.vnet-vmseries.name
   network_security_group_id = azurerm_network_security_group.sg-outside.id
 }
+
 resource "azurerm_network_interface" "nic-fw-outside" {
   location = azurerm_resource_group.vmseries.location
   name = "${var.name_prefix}-nic-fw-outside"
@@ -142,6 +193,7 @@ resource "azurerm_network_interface" "nic-fw-outside" {
     name = "${var.name_prefix}-fw-ip-outside"
     private_ip_address_allocation = "static"
     private_ip_address = "172.16.2.10"
+    //public_ip_address_id = azurerm_public_ip.pip-fw-outside.id
   }
 }
 

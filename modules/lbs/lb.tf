@@ -15,6 +15,14 @@ resource "azurerm_public_ip" "lb-fip-pip" {
   resource_group_name = azurerm_resource_group.rg-lb.name
 }
 
+resource "azurerm_public_ip" "lb-outbound-fip-pip" {
+  allocation_method = "Static"
+  sku = "standard"
+  location = azurerm_resource_group.rg-lb.location
+  name = "${var.name_prefix}-outbound-fip-pip"
+  resource_group_name = azurerm_resource_group.rg-lb.name
+}
+
 resource "azurerm_lb" "lb" {
   location = var.location
   name = "${var.name_prefix}-lb"
@@ -27,12 +35,27 @@ resource "azurerm_lb" "lb" {
       public_ip_address_id = frontend_ip_configuration.value.id
     }
   }
+  frontend_ip_configuration {
+    name = "${var.name_prefix}-outbound-fip"
+    public_ip_address_id = azurerm_public_ip.lb-outbound-fip-pip.id
+  }
 }
 
 resource "azurerm_lb_backend_address_pool" "lb-backend" {
   loadbalancer_id = azurerm_lb.lb.id
   name = "${var.name_prefix}-lb-backend"
   resource_group_name = azurerm_resource_group.rg-lb.name
+}
+
+resource "azurerm_lb_outbound_rule" "lb-outbound" {
+  resource_group_name = azurerm_resource_group.rg-lb.name
+  loadbalancer_id = azurerm_lb.lb.id
+  name = "${azurerm_lb.lb.name}-outboundlb"
+  backend_address_pool_id = azurerm_lb_backend_address_pool.lb-backend.id
+  protocol = "All"
+  frontend_ip_configuration {
+    name = "${var.name_prefix}-outbound-fip"
+  }
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "lb-backend-assoc" {

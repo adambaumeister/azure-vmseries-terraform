@@ -41,28 +41,27 @@ resource "azurerm_network_security_group" "nsg" {
   resource_group_name = azurerm_resource_group.rg.name
 
   security_rule {
-    name = "SSH"
+    name = "AllowAll"
     priority = 1001
     direction = "Inbound"
     access = "Allow"
-    protocol = "Tcp"
+    protocol = "*"
     source_port_range = "*"
-    destination_port_range = "22"
+    destination_port_range = "*"
     source_address_prefix = "*"
     destination_address_prefix = "*"
   }
   security_rule {
-    name = "WEB"
-    priority = 1002
-    direction = "Inbound"
+    name = "AllowAll-Outbound"
+    priority = 1001
+    direction = "Outbound"
     access = "Allow"
-    protocol = "Tcp"
+    protocol = "*"
     source_port_range = "*"
-    destination_port_range = "80"
+    destination_port_range = "*"
     source_address_prefix = "*"
     destination_address_prefix = "*"
   }
-
 }
 
 # Create network interface
@@ -145,6 +144,9 @@ resource "azurerm_virtual_network_peering" "testhost-fw-peer" {
   resource_group_name = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   allow_virtual_network_access = true
+  allow_forwarded_traffic = true
+  allow_gateway_transit = true
+
 }
 resource "azurerm_virtual_network_peering" "fw-testhost-peer" {
   name = "${var.name_prefix}-fw-testhost-peering"
@@ -152,6 +154,8 @@ resource "azurerm_virtual_network_peering" "fw-testhost-peer" {
   resource_group_name = var.peer-vnet.resource_group_name
   virtual_network_name = var.peer-vnet.name
   allow_virtual_network_access = true
+  allow_forwarded_traffic = true
+  allow_gateway_transit = true
 }
 
 
