@@ -91,9 +91,10 @@ resource "azurerm_network_security_group" "sg-outside" {
   resource_group_name = azurerm_resource_group.vmseries.name
 }
 
-# Permit All outbound traffic in Panorma VNET
-resource "azurerm_network_security_rule" "outside-allowall" {
-  name = "${var.name_prefix}-sgrule-allowall"
+# Permit All Inbound traffic in Outside VNET
+# required due to Standard type LB
+resource "azurerm_network_security_rule" "outside-allowall-inbound" {
+  name = "${var.name_prefix}-sgrule-allowin"
   resource_group_name = azurerm_resource_group.vmseries.name
   access = "Allow"
   direction = "Inbound"
@@ -105,6 +106,21 @@ resource "azurerm_network_security_rule" "outside-allowall" {
   destination_address_prefix = "*"
   destination_port_range = "*"
 }
+resource "azurerm_network_security_rule" "outside-allowall-outbound" {
+  name = "${var.name_prefix}-sgrule-allowout"
+  resource_group_name = azurerm_resource_group.vmseries.name
+  access = "Allow"
+  direction = "Outbound"
+  network_security_group_name = azurerm_network_security_group.sg-outside.name
+  priority = 101
+  protocol = "*"
+  source_port_range = "*"
+  source_address_prefix = "*"
+  destination_address_prefix = "*"
+  destination_port_range = "*"
+}
+
+
 resource "azurerm_subnet_network_security_group_association" "sg-outside-associate" {
   network_security_group_id = azurerm_network_security_group.sg-outside.id
   subnet_id = azurerm_subnet.subnet-outside.id

@@ -57,11 +57,10 @@ resource "azurerm_lb_rule" "lb-rules" {
   frontend_ip_configuration_name = "${var.name_prefix}-${each.value.port}-fip"
   frontend_port = each.value.port
   loadbalancer_id = azurerm_lb.lb.id
-  name = "${each.value.nat_ip}-lbrule"
+  name = "${each.value.name}-lbrule"
   protocol = "Tcp"
   resource_group_name = azurerm_resource_group.rg-lb.name
   enable_floating_ip = true
   backend_address_pool_id = azurerm_lb_backend_address_pool.lb-backend.id
   probe_id = azurerm_lb_probe.probe.id
-
 }

@@ -84,3 +84,7 @@ output "PANORAMA-IP" {
 output "VM-IP" {
   value = module.vm-series.ip
 }
+
+output "Inbound-PIPS" {
+  value = module.inbound-lb.pip-ips
+}

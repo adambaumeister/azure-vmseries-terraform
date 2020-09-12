@@ -12,7 +12,7 @@ variable "name_prefix" {
 variable "rules" {
   type = list(object({
     port = number
-    nat_ip = string
+    name = string
   }))
 }
 variable "admin-password" {
