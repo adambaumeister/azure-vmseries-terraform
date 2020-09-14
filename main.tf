@@ -8,15 +8,20 @@ terraform {
   }
 }
 
-
-
+# Setup all the networking
+module "networks" {
+  source = "./modules/networks"
+  location = var.location
+  management_ips = var.management_ips
+  name_prefix = var.name_prefix
+}
 # Create a panorama instance
 module  "panorama" {
   source = "./modules/panorama"
 
   location = var.location
   name_prefix = var.name_prefix
-  management_ips = var.management_ips
+  subnet-mgmt = module.networks.panorama-mgmt-subnet
 }
 
 # create a vm-series fw
@@ -25,7 +30,10 @@ module "vm-series" {
 
   location = var.location
   name_prefix = var.name_prefix
-  management_ips = var.management_ips
+  subnet-mgmt = module.networks.subnet-mgmt
+  subnet-private = module.networks.subnet-private
+  subnet-public = module.networks.subnet-public
+  bootstrap-storage-account = module.panorama.bootstrap-storage-account
 
 }
 
@@ -50,7 +58,7 @@ module "outbound-lb" {
     module.vm-series.inside-nic
   ])
   private-ip = var.olb-private-ip
-  backend-subnet = module.vm-series.inside-subnet.id
+  backend-subnet = module.networks.subnet-private.id
 }
 
 module "onboard-test-vnet" {
@@ -67,15 +75,11 @@ module "test-host" {
   source = "./modules/test-vnet"
   location = var.location
   name_prefix = var.name_prefix
-  peer-vnet = module.vm-series.vnet
+  peer-vnet = module.networks.transit-vnet
   admin-password = var.admin-password
   route-table-id = module.onboard-test-vnet.route-table-id
 }
 
-
-output "MGMT-VNET" {
-  value = module.panorama.vnet-name
-}
 
 output "PANORAMA-IP" {
   value = module.panorama.panorama-publicip

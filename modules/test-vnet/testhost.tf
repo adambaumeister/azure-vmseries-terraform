@@ -1,7 +1,7 @@
 # Create a resource group if it doesn't exist
 resource "azurerm_resource_group" "rg" {
   location = var.location
-  name = "${var.name_prefix}-vmseries-rg"
+  name = "${var.name_prefix}-rg-testhost"
 }
 
 # Create virtual network

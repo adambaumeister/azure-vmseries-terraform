@@ -11,6 +11,18 @@ variable "vmseries_size" {
   default = "Standard_D5_v2"
 }
 
-variable "management_ips" {
-  type = map(any)
+variable "subnet-mgmt" {
+  description = "Management subnet."
+}
+
+variable "subnet-public" {
+  description = "External/public subnet"
+}
+
+variable "subnet-private" {
+  description = "internal/private subnet"
+}
+
+variable "bootstrap-storage-account" {
+  description = "Storage account setup for bootstrapping"
 }

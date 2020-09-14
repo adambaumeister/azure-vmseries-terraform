@@ -4,50 +4,6 @@ resource "azurerm_resource_group" "panorama" {
   name = "${var.name_prefix}-rg-panorama"
 }
 
-# Create the out of band network
-resource "azurerm_virtual_network" "vnet-mgmt" {
-  address_space = ["10.10.10.0/24"]
-  location = var.location
-  name = "${var.name_prefix}-vnet-mgmt"
-  resource_group_name = azurerm_resource_group.panorama.name
-}
-
-
-
-resource "azurerm_network_security_group" "sg-mgmt" {
-  location = azurerm_resource_group.panorama.location
-  name = "${var.name_prefix}-sg-mgmt"
-  resource_group_name = azurerm_resource_group.panorama.name
-}
-
-resource "azurerm_subnet_network_security_group_association" "mgmt-sa" {
-  network_security_group_id = azurerm_network_security_group.sg-mgmt.id
-  subnet_id = azurerm_subnet.subnet-mgmt.id
-}
-
-resource "azurerm_network_security_rule" "management-rules" {
-  for_each = var.management_ips
-  name = "${var.name_prefix}-mgmt-sgrule-${each.key}-22"
-  resource_group_name = azurerm_resource_group.panorama.name
-  access = "Allow"
-  direction = "Inbound"
-  network_security_group_name = azurerm_network_security_group.sg-mgmt.name
-  priority = each.value
-  protocol = "Tcp"
-  source_port_range = "*"
-  source_address_prefix = each.key
-  destination_address_prefix = "0.0.0.0/0"
-  destination_port_range = "*"
-}
-
-resource "azurerm_subnet" "subnet-mgmt" {
-  name = "${var.name_prefix}-net-mgmt"
-  address_prefix = "10.10.10.0/26"
-  resource_group_name = azurerm_resource_group.panorama.name
-  virtual_network_name = azurerm_virtual_network.vnet-mgmt.name
-  network_security_group_id = azurerm_network_security_group.sg-mgmt.id
-}
-
 # Create a public IP for management
 resource "azurerm_public_ip" "panorama-pip-mgmt" {
   allocation_method = "Static"
@@ -62,7 +18,7 @@ resource "azurerm_network_interface" "mgmt" {
   name = "${var.name_prefix}-nic-mgmt"
   resource_group_name = azurerm_resource_group.panorama.name
   ip_configuration {
-    subnet_id = azurerm_subnet.subnet-mgmt.id
+    subnet_id = var.subnet-mgmt.id
     name = "${var.name_prefix}-ip-mgmt"
     private_ip_address_allocation = "static"
     private_ip_address = "10.10.10.10"
