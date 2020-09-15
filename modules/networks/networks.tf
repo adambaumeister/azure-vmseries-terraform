@@ -60,12 +60,14 @@ resource "azurerm_subnet" "subnet-inside" {
   address_prefix = "172.16.1.0/24"
   resource_group_name = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet-vmseries.name
+  network_security_group_id = azurerm_network_security_group.sg-allowall.id
+  route_table_id = azurerm_route_table.udr-inside.id
 }
 
 # Public network
-resource "azurerm_network_security_group" "sg-outside" {
+resource "azurerm_network_security_group" "sg-allowall" {
   location = azurerm_resource_group.rg.location
-  name = "${var.name_prefix}-sg-outside"
+  name = "${var.name_prefix}-sg-allowall"
   resource_group_name = azurerm_resource_group.rg.name
 }
 resource "azurerm_subnet" "subnet-outside" {
@@ -73,11 +75,34 @@ resource "azurerm_subnet" "subnet-outside" {
   address_prefix = "172.16.2.0/24"
   resource_group_name = azurerm_resource_group.rg.name
   virtual_network_name =  azurerm_virtual_network.vnet-vmseries.name
-  network_security_group_id = azurerm_network_security_group.sg-outside.id
+  network_security_group_id = azurerm_network_security_group.sg-allowall.id
 }
 resource "azurerm_subnet_network_security_group_association" "sg-outside-associate" {
-  network_security_group_id = azurerm_network_security_group.sg-outside.id
+  network_security_group_id = azurerm_network_security_group.sg-allowall.id
   subnet_id = azurerm_subnet.subnet-outside.id
+}
+
+resource "azurerm_subnet_network_security_group_association" "sg-inside-associate" {
+  network_security_group_id = azurerm_network_security_group.sg-allowall.id
+  subnet_id = azurerm_subnet.subnet-inside.id
+}
+
+resource "azurerm_route_table" "udr-inside" {
+  location = var.location
+  name = "${var.name_prefix}-udr-inside"
+  resource_group_name = azurerm_resource_group.rg.name
+  route {
+    address_prefix = "0.0.0.0/0"
+    name = "default"
+    next_hop_type = "VirtualAppliance"
+    next_hop_in_ip_address = var.olb-ip
+  }
+}
+
+# asssign the route table to the remote/spoke VNET
+resource "azurerm_subnet_route_table_association" "rta" {
+  route_table_id = azurerm_route_table.udr-inside.id
+  subnet_id = azurerm_subnet.subnet-inside.id
 }
 
 # Peer the VNETs from the vm-series and panorama module

@@ -14,6 +14,7 @@ module "networks" {
   location = var.location
   management_ips = var.management_ips
   name_prefix = var.name_prefix
+  olb-ip = var.olb-private-ip
 }
 # Create a panorama instance
 module  "panorama" {
@@ -24,7 +25,7 @@ module  "panorama" {
   subnet-mgmt = module.networks.panorama-mgmt-subnet
 }
 
-# create a vm-series fw
+# Create the INBOUND vm-series
 module "vm-series" {
   source = "./modules/vm"
 
@@ -34,7 +35,21 @@ module "vm-series" {
   subnet-private = module.networks.subnet-private
   subnet-public = module.networks.subnet-public
   bootstrap-storage-account = module.panorama.bootstrap-storage-account
+  bootstrap-share-name = module.panorama.inbound-bootstrap-share-name
+}
 
+# Create the OUTBOUND vm-series
+# create a vm-series fw
+module "outbound-vm-series" {
+  source = "./modules/vm"
+
+  location = var.location
+  name_prefix = "${var.name_prefix}-outbound"
+  subnet-mgmt = module.networks.subnet-mgmt
+  subnet-private = module.networks.subnet-private
+  subnet-public = module.networks.subnet-public
+  bootstrap-storage-account = module.panorama.bootstrap-storage-account
+  bootstrap-share-name = module.panorama.outbound-bootstrap-share-name
 }
 
 # Deploy the inbound load balancer for traffic into the azure environment
@@ -55,7 +70,7 @@ module "outbound-lb" {
   location = var.location
   name_prefix = var.name_prefix
   backend-nics = toset([
-    module.vm-series.inside-nic
+    module.outbound-vm-series.inside-nic
   ])
   private-ip = var.olb-private-ip
   backend-subnet = module.networks.subnet-private.id

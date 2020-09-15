@@ -24,16 +24,6 @@ resource "azurerm_subnet" "subnet" {
   route_table_id = var.route-table-id
 }
 
-# Create public IPs
-resource "azurerm_public_ip" "pip" {
-  name = "${var.name_prefix}-testhost-pip"
-  sku = "standard"
-  location = var.location
-  resource_group_name = azurerm_resource_group.rg.name
-  allocation_method = "Static"
-
-}
-
 # Create Network Security Group and rule
 resource "azurerm_network_security_group" "nsg" {
   name = "${var.name_prefix}-testhost-nsg"
@@ -75,7 +65,6 @@ resource "azurerm_network_interface" "nic" {
     subnet_id = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Static"
     private_ip_address = "10.100.100.10"
-    public_ip_address_id = azurerm_public_ip.pip.id
   }
 }
 
@@ -145,7 +134,6 @@ resource "azurerm_virtual_network_peering" "testhost-fw-peer" {
   virtual_network_name = azurerm_virtual_network.vnet.name
   allow_virtual_network_access = true
   allow_forwarded_traffic = true
-  allow_gateway_transit = true
 
 }
 resource "azurerm_virtual_network_peering" "fw-testhost-peer" {
@@ -155,7 +143,6 @@ resource "azurerm_virtual_network_peering" "fw-testhost-peer" {
   virtual_network_name = var.peer-vnet.name
   allow_virtual_network_access = true
   allow_forwarded_traffic = true
-  allow_gateway_transit = true
 }
 
 

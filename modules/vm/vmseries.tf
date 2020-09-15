@@ -28,8 +28,8 @@ resource "azurerm_network_interface" "nic-fw-mgmt" {
   ip_configuration {
     subnet_id = var.subnet-mgmt.id
     name = "${var.name_prefix}-fw-ip-mgmt"
-    private_ip_address_allocation = "static"
-    private_ip_address = "172.16.0.10"
+    private_ip_address_allocation = "dynamic"
+    //private_ip_address = "172.16.0.10"
     public_ip_address_id = azurerm_public_ip.pip-fw-mgmt.id
   }
 }
@@ -41,9 +41,10 @@ resource "azurerm_network_interface" "nic-fw-inside" {
   ip_configuration {
     subnet_id = var.subnet-private.id
     name = "${var.name_prefix}-fw-ip-inside"
-    private_ip_address_allocation = "static"
-    private_ip_address = "172.16.1.10"
+    private_ip_address_allocation = "dynamic"
+    //private_ip_address = "172.16.1.10"
   }
+  enable_ip_forwarding = true
 }
 
 resource "azurerm_network_interface" "nic-fw-outside" {
@@ -53,10 +54,13 @@ resource "azurerm_network_interface" "nic-fw-outside" {
   ip_configuration {
     subnet_id = var.subnet-public.id
     name = "${var.name_prefix}-fw-ip-outside"
-    private_ip_address_allocation = "static"
-    private_ip_address = "172.16.2.10"
-    //public_ip_address_id = azurerm_public_ip.pip-fw-outside.id
+    private_ip_address_allocation = "dynamic"
+    //private_ip_address = "172.16.2.10"
+    public_ip_address_id = azurerm_public_ip.pip-fw-outside.id
+
   }
+  enable_ip_forwarding = true
+
 }
 
 
@@ -95,7 +99,7 @@ resource "azurerm_virtual_machine" "fw" {
             [
               "storage-account=${var.bootstrap-storage-account.name}",
               "access-key=${var.bootstrap-storage-account.primary_access_key}",
-              "file-share=${var.bootstrap-storage-account.name}",
+              "file-share=${var.bootstrap-share-name}",
               "share-directory=None"
             ]
       )

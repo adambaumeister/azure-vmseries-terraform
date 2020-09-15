@@ -47,17 +47,6 @@ resource "azurerm_lb_backend_address_pool" "lb-backend" {
   resource_group_name = azurerm_resource_group.rg-lb.name
 }
 
-resource "azurerm_lb_outbound_rule" "lb-outbound" {
-  resource_group_name = azurerm_resource_group.rg-lb.name
-  loadbalancer_id = azurerm_lb.lb.id
-  name = "${azurerm_lb.lb.name}-outboundlb"
-  backend_address_pool_id = azurerm_lb_backend_address_pool.lb-backend.id
-  protocol = "All"
-  frontend_ip_configuration {
-    name = "${var.name_prefix}-outbound-fip"
-  }
-}
-
 resource "azurerm_network_interface_backend_address_pool_association" "lb-backend-assoc" {
   for_each = { for nic in var.backend-nics : nic.name => nic }
   backend_address_pool_id = azurerm_lb_backend_address_pool.lb-backend.id

@@ -63,7 +63,7 @@ resource "azurerm_network_security_rule" "outside-allowall-inbound" {
   resource_group_name = azurerm_resource_group.rg.name
   access = "Allow"
   direction = "Inbound"
-  network_security_group_name = azurerm_network_security_group.sg-outside.name
+  network_security_group_name = azurerm_network_security_group.sg-allowall.name
   priority = 100
   protocol = "*"
   source_port_range = "*"
@@ -76,7 +76,7 @@ resource "azurerm_network_security_rule" "outside-allowall-outbound" {
   resource_group_name = azurerm_resource_group.rg.name
   access = "Allow"
   direction = "Outbound"
-  network_security_group_name = azurerm_network_security_group.sg-outside.name
+  network_security_group_name = azurerm_network_security_group.sg-allowall.name
   priority = 101
   protocol = "*"
   source_port_range = "*"

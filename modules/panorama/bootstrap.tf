@@ -14,6 +14,7 @@ resource "azurerm_storage_account" "bootstrap-storage-account" {
 }
 
 # Create rhe share to house the directories
+### INBOUND ####
 resource "azurerm_storage_share" "bootstrap-storage-share" {
   name = "bootstrapshare"
   storage_account_name = azurerm_storage_account.bootstrap-storage-account.name
@@ -41,4 +42,34 @@ resource "null_resource" "uploadfile" {
     command = "az storage file upload --account-name ${azurerm_storage_account.bootstrap-storage-account.name} --account-key ${azurerm_storage_account.bootstrap-storage-account.primary_access_key} --share-name ${azurerm_storage_share.bootstrap-storage-share.name} --source .\\bootstrap_configs\\init-cfg-inbound.txt --path config/init-cfg.txt"
   }
   depends_on = [azurerm_storage_share_directory.bootstrap-config-directory]
+}
+
+#### OUTBOUND #####
+resource "azurerm_storage_share" "outbound-bootstrap-storage-share" {
+  name = "obbootstrapshare"
+  storage_account_name = azurerm_storage_account.bootstrap-storage-account.name
+  quota = 50
+}
+
+resource "azurerm_storage_share_directory" "outbound-bootstrap-storage-directories" {
+  for_each = toset([
+    "content",
+    "software",
+    "license"])
+  name = each.key
+  share_name = azurerm_storage_share.outbound-bootstrap-storage-share.name
+  storage_account_name = azurerm_storage_account.bootstrap-storage-account.name
+}
+
+resource "azurerm_storage_share_directory" "outbound-bootstrap-config-directory" {
+  share_name = azurerm_storage_share.outbound-bootstrap-storage-share.name
+  storage_account_name = azurerm_storage_account.bootstrap-storage-account.name
+  name = "config"
+}
+
+resource "null_resource" "outbound-uploadfile" {
+  provisioner "local-exec" {
+    command = "az storage file upload --account-name ${azurerm_storage_account.bootstrap-storage-account.name} --account-key ${azurerm_storage_account.bootstrap-storage-account.primary_access_key} --share-name ${azurerm_storage_share.outbound-bootstrap-storage-share.name} --source .\\bootstrap_configs\\init-cfg-outbound.txt --path config/init-cfg.txt"
+  }
+  depends_on = [azurerm_storage_share_directory.outbound-bootstrap-config-directory]
 }

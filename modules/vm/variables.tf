@@ -26,3 +26,7 @@ variable "subnet-private" {
 variable "bootstrap-storage-account" {
   description = "Storage account setup for bootstrapping"
 }
+
+variable "bootstrap-share-name" {
+  description = "File share for bootstrap config"
+}

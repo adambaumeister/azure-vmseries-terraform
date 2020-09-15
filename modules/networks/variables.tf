@@ -8,3 +8,6 @@ variable "name_prefix" {
 variable "management_ips" {
   type = map(any)
 }
+variable "olb-ip" {
+  description = "Private IP for outgoing lb"
+}
