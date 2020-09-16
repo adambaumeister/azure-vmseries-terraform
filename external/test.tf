@@ -7,6 +7,10 @@ terraform {
   }
 }
 
+variable "key_lifetime" {
+  type = string
+  default = "8760"
+}
 variable "location" {
   type = string
   description = "The Azure region to use."
@@ -59,6 +63,7 @@ data "external" "panorama_bootstrap" {
     storage_account_key = module.panorama.bootstrap-storage-account.primary_access_key
     inbound_storage_share_name = module.panorama.inbound-bootstrap-share-name
     outbound_storage_share_name = module.panorama.outbound-bootstrap-share-name
+    key_lifetime  = var.key_lifetime
   }
 }
 output "vm-auth-key" {

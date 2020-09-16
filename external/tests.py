@@ -22,6 +22,7 @@ if __name__ == '__main__':
         "storage_account_key": "test",
         "inbound_storage_share_name": "test-ib",
         "outbound_storage_share_name": "test-ob",
+        "key_lifetime": "8760"
     }
     query = parse_args(query)
     r = gen_inbound_init_cfgs(query, "012345678910")

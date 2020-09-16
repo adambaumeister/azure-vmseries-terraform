@@ -103,7 +103,7 @@ def gen_bootstrap(p: Panos, lifetime: str):
     }
     r = p.send(params)
     if not p.check_resp(r):
-        raise PanoramaError("Failed to generate Bootstrap key.")
+        raise PanoramaError("Failed to generate Bootstrap key {}".format(r.content))
 
     regex_result = re.search("VM auth key\s+(\d+)\s+", r.content.decode())
     key = regex_result.group(1)
@@ -136,7 +136,7 @@ def bootstrap(query):
     key = show_bootstrap(p)
     # never yet bootstratpped
     if not key:
-        key = gen_bootstrap(key, query["key_lifetime"])
+        key = gen_bootstrap(p, query["key_lifetime"])
         inbound_config = gen_inbound_init_cfgs(query, key)
         outbound_config = gen_inbound_init_cfgs(query, key)
         upload_cfgs(
