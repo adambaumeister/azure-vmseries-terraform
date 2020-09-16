@@ -1,4 +1,4 @@
-from configure_panorama import connect, gen_bootstrap, show_bootstrap, bootstrap, gen_init_cfgs, parse_args
+from configure_panorama import connect, gen_bootstrap, show_bootstrap, bootstrap, gen_inbound_init_cfgs, parse_args, upload_cfgs
 import os
 
 if __name__ == '__main__':
@@ -17,13 +17,15 @@ if __name__ == '__main__':
     query = {
         "panorama_ip": os.getenv("P_HOSTNAME"),
         "username": os.getenv("P_USERNAME"),
-        "password": os.getenv("P_PASSWORD")
+        "password": os.getenv("P_PASSWORD"),
+        "storage_account_name": "test",
+        "storage_account_key": "test",
+        "inbound_storage_share_name": "test-ib",
+        "outbound_storage_share_name": "test-ob",
     }
     query = parse_args(query)
-    r = gen_init_cfgs(query, "012345678910")
+    r = gen_inbound_init_cfgs(query, "012345678910")
+
     if query["panorama_ip"]:
-        p = connect(query)
-        show_bootstrap(p)
-        key = gen_bootstrap(p, "24")
-        assert(key)
+        bootstrap(query)
 

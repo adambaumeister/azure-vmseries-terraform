@@ -37,13 +37,6 @@ resource "azurerm_storage_share_directory" "bootstrap-config-directory" {
   name = "config"
 }
 
-resource "null_resource" "uploadfile" {
-  provisioner "local-exec" {
-    command = "az storage file upload --account-name ${azurerm_storage_account.bootstrap-storage-account.name} --account-key ${azurerm_storage_account.bootstrap-storage-account.primary_access_key} --share-name ${azurerm_storage_share.bootstrap-storage-share.name} --source .\\bootstrap_configs\\init-cfg-inbound.txt --path config/init-cfg.txt"
-  }
-  depends_on = [azurerm_storage_share_directory.bootstrap-config-directory]
-}
-
 #### OUTBOUND #####
 resource "azurerm_storage_share" "outbound-bootstrap-storage-share" {
   name = "obbootstrapshare"
@@ -65,11 +58,4 @@ resource "azurerm_storage_share_directory" "outbound-bootstrap-config-directory"
   share_name = azurerm_storage_share.outbound-bootstrap-storage-share.name
   storage_account_name = azurerm_storage_account.bootstrap-storage-account.name
   name = "config"
-}
-
-resource "null_resource" "outbound-uploadfile" {
-  provisioner "local-exec" {
-    command = "az storage file upload --account-name ${azurerm_storage_account.bootstrap-storage-account.name} --account-key ${azurerm_storage_account.bootstrap-storage-account.primary_access_key} --share-name ${azurerm_storage_share.outbound-bootstrap-storage-share.name} --source .\\bootstrap_configs\\init-cfg-outbound.txt --path config/init-cfg.txt"
-  }
-  depends_on = [azurerm_storage_share_directory.outbound-bootstrap-config-directory]
 }

@@ -7,6 +7,7 @@ from xml.etree import ElementTree
 from constants import *
 import os
 import subprocess
+import time
 OUTPUT_DIR="output"
 
 REQUIRED_ARGS=[
@@ -31,19 +32,23 @@ OPTIONAL_ARGS={
 
 
 def connect(query: dict):
-    p = Panos(query["panorama_ip"], user=query["username"], pw=query["password"])
+    connected = False
+    failures = 0
+    max_failures = 10
+    while not connected:
+        if failures >= max_failures:
+            raise PanoramaError("Failed to connect to panorama at {}".format(query["panorama_ip"]))
+        try:
+            p = Panos(query["panorama_ip"], user=query["username"], pw=query["password"])
+            connected = True
+        except:
+            failures = failures +1
+            time.sleep(30)
+            pass
+
     return p
 
-def gen_init_cfgs(query: dict, vm_auth_key:str):
-    outbound_config = init_cfg(
-        hostname=query["outbound_hostname"],
-        vm_auth_key=vm_auth_key,
-        device_group_name=query["outbound_device_group"],
-        template_name=query["outbound_template_stack"],
-        panorama_ip=query["panorama_ip"],
-        dns_ip=query["dns_server"]
-    )
-
+def gen_inbound_init_cfgs(query: dict, vm_auth_key:str):
     inbound_config = init_cfg(
         hostname=query["inbound_hostname"],
         vm_auth_key=vm_auth_key,
@@ -53,26 +58,38 @@ def gen_init_cfgs(query: dict, vm_auth_key:str):
         dns_ip=query["dns_server"]
     )
 
-    fh = open(os.path.join(OUTPUT_DIR, "init-cfg-outbound.txt"), mode="w")
-    fh.write(outbound_config)
-    fh.close()
     fh = open(os.path.join(OUTPUT_DIR, "init-cfg-inbound.txt"), mode="w")
     fh.write(inbound_config)
     fh.close()
 
-    return
+    return os.path.join(OUTPUT_DIR, "init-cfg-inbound.txt")
+
+def gen_outbound_init_cfgs(query: dict, vm_auth_key:str):
+    outbound_config = init_cfg(
+        hostname=query["outbound_hostname"],
+        vm_auth_key=vm_auth_key,
+        device_group_name=query["outbound_device_group"],
+        template_name=query["outbound_template_stack"],
+        panorama_ip=query["panorama_ip"],
+        dns_ip=query["dns_server"]
+    )
+
+    fh = open(os.path.join(OUTPUT_DIR, "init-cfg-outbound.txt"), mode="w")
+    fh.write(outbound_config)
+    fh.close()
+
+    return os.path.join(OUTPUT_DIR, "init-cfg-outbound.txt")
 
 
-def upload_cfgs(paths,
+def upload_cfgs(path,
                 storage_account_name,
                 primary_access_key,
                 storage_share_name
                 ):
     results = []
-    for path in paths:
-        cmd = f"az storage file upload --account-name {storage_account_name} --account-key {primary_access_key} --share-name {storage_share_name}--source {path} --path config/init-cfg.txt"
-        r = subprocess.run(cmd.split())
-        results.append(r)
+    cmd = f"az storage file upload --account-name {storage_account_name} --account-key {primary_access_key} --share-name {storage_share_name} --source {path} --path config/init-cfg.txt"
+    r = subprocess.run(cmd.split(), shell=True, capture_output=True)
+    results.append(r)
     return results
 
 
@@ -117,8 +134,23 @@ def show_bootstrap(p: Panos):
 def bootstrap(query):
     p = connect(query)
     key = show_bootstrap(p)
+    # never yet bootstratpped
     if not key:
         key = gen_bootstrap(key, query["key_lifetime"])
+        inbound_config = gen_inbound_init_cfgs(query, key)
+        outbound_config = gen_inbound_init_cfgs(query, key)
+        upload_cfgs(
+            inbound_config,
+            storage_account_name=query["storage_account_name"],
+            storage_share_name=query["inbound_storage_share_name"],
+            primary_access_key=query["storage_account_key"]
+        )
+        upload_cfgs(
+            outbound_config,
+            storage_account_name=query["storage_account_name"],
+            storage_share_name=query["outbound_storage_share_name"],
+            primary_access_key=query["storage_account_key"]
+        )
     return key
 
 
