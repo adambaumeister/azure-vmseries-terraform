@@ -12,9 +12,13 @@ output "bootstrap-storage-account" {
 }
 
 output "inbound-bootstrap-share-name" {
-  value = azurerm_storage_share.bootstrap-storage-share.name
+  value = azurerm_storage_share.inbound-bootstrap-storage-share.name
 }
 
 output "outbound-bootstrap-share-name" {
   value = azurerm_storage_share.outbound-bootstrap-storage-share.name
+}
+
+output "storage-key" {
+  value = azurerm_storage_account.bootstrap-storage-account.primary_access_key
 }

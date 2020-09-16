@@ -91,9 +91,9 @@ resource "azurerm_virtual_machine" "fw" {
 
   primary_network_interface_id = azurerm_network_interface.nic-fw-mgmt.id
   os_profile {
-    admin_username = "panadmin"
+    admin_username = var.username
     computer_name = "${var.name_prefix}-fw"
-    admin_password = "NicePassword!"
+    admin_password = var.password
     custom_data = join(
             ",",
             [

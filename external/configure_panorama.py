@@ -14,6 +14,7 @@ REQUIRED_ARGS=[
     "panorama_ip",
     "username",
     "password",
+    "panorama_private_ip",
     "storage_account_name",
     "storage_account_key",
     "inbound_storage_share_name",
@@ -54,15 +55,15 @@ def gen_inbound_init_cfgs(query: dict, vm_auth_key:str):
         vm_auth_key=vm_auth_key,
         device_group_name=query["inbound_device_group"],
         template_name=query["inbound_template_stack"],
-        panorama_ip=query["panorama_ip"],
+        panorama_ip=query["panorama_private_ip"],
         dns_ip=query["dns_server"]
     )
-
-    fh = open(os.path.join(OUTPUT_DIR, "init-cfg-inbound.txt"), mode="w")
+    fp = os.path.join(query["output_dir"], OUTPUT_DIR, "init-cfg-inbound.txt")
+    fh = open(fp, mode="w")
     fh.write(inbound_config)
     fh.close()
 
-    return os.path.join(OUTPUT_DIR, "init-cfg-inbound.txt")
+    return fp
 
 def gen_outbound_init_cfgs(query: dict, vm_auth_key:str):
     outbound_config = init_cfg(
@@ -70,15 +71,16 @@ def gen_outbound_init_cfgs(query: dict, vm_auth_key:str):
         vm_auth_key=vm_auth_key,
         device_group_name=query["outbound_device_group"],
         template_name=query["outbound_template_stack"],
-        panorama_ip=query["panorama_ip"],
+        panorama_ip=query["panorama_private_ip"],
         dns_ip=query["dns_server"]
     )
 
-    fh = open(os.path.join(OUTPUT_DIR, "init-cfg-outbound.txt"), mode="w")
+    fp = os.path.join(query["output_dir"], OUTPUT_DIR, "init-cfg-outbound.txt")
+    fh = open(fp, mode="w")
     fh.write(outbound_config)
     fh.close()
 
-    return os.path.join(OUTPUT_DIR, "init-cfg-outbound.txt")
+    return fp
 
 
 def upload_cfgs(path,
@@ -138,7 +140,7 @@ def bootstrap(query):
     if not key:
         key = gen_bootstrap(p, query["key_lifetime"])
         inbound_config = gen_inbound_init_cfgs(query, key)
-        outbound_config = gen_inbound_init_cfgs(query, key)
+        outbound_config = gen_outbound_init_cfgs(query, key)
         upload_cfgs(
             inbound_config,
             storage_account_name=query["storage_account_name"],

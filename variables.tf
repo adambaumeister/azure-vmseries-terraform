@@ -15,7 +15,13 @@ variable "rules" {
     name = string
   }))
 }
-variable "admin-password" {
+
+variable "username" {
+  default = "panadmin"
+  description = "Username to use for all systems"
+}
+
+variable "password" {
   description = "Admin password to use for all systems"
 }
 

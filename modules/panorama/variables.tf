@@ -14,3 +14,17 @@ variable "panorama_size" {
 variable "subnet-mgmt" {
   description = "Management subnet."
 }
+
+variable "username" {
+  description = "Username"
+  default = "panadmin"
+}
+
+variable "password" {
+  description = "Password for Panorama"
+}
+
+variable "bootstrap_key_lifetime" {
+  description = "Default key lifetime for bootstrap."
+  default = "8760"
+}

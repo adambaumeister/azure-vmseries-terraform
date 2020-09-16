@@ -30,3 +30,12 @@ variable "bootstrap-storage-account" {
 variable "bootstrap-share-name" {
   description = "File share for bootstrap config"
 }
+
+variable "username" {
+  description = "Username"
+  default = "panadmin"
+}
+
+variable "password" {
+  description = "Password for VM Series firewalls"
+}

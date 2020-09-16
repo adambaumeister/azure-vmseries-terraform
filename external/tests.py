@@ -18,11 +18,13 @@ if __name__ == '__main__':
         "panorama_ip": os.getenv("P_HOSTNAME"),
         "username": os.getenv("P_USERNAME"),
         "password": os.getenv("P_PASSWORD"),
+        "panorama_private_ip": "10.10.10.10",
         "storage_account_name": "test",
         "storage_account_key": "test",
         "inbound_storage_share_name": "test-ib",
         "outbound_storage_share_name": "test-ob",
-        "key_lifetime": "8760"
+        "key_lifetime": "8760",
+        "output_dir": os.getcwd()
     }
     query = parse_args(query)
     r = gen_inbound_init_cfgs(query, "012345678910")

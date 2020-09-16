@@ -50,6 +50,7 @@ module  "panorama" {
   location = var.location
   name_prefix = var.name_prefix
   subnet-mgmt = module.networks.panorama-mgmt-subnet
+  password = "NicePassword!"
 }
 
 data "external" "panorama_bootstrap" {

@@ -16,13 +16,17 @@ module "networks" {
   name_prefix = var.name_prefix
   olb-ip = var.olb-private-ip
 }
+
 # Create a panorama instance
-module  "panorama" {
+module "panorama" {
   source = "./modules/panorama"
 
   location = var.location
   name_prefix = var.name_prefix
   subnet-mgmt = module.networks.panorama-mgmt-subnet
+
+  username = var.username
+  password = var.password
 }
 
 # Create the INBOUND vm-series
@@ -31,25 +35,35 @@ module "vm-series" {
 
   location = var.location
   name_prefix = var.name_prefix
+  username = var.username
+  password = var.password
+
   subnet-mgmt = module.networks.subnet-mgmt
   subnet-private = module.networks.subnet-private
   subnet-public = module.networks.subnet-public
+
   bootstrap-storage-account = module.panorama.bootstrap-storage-account
   bootstrap-share-name = module.panorama.inbound-bootstrap-share-name
+
+  depends_on = [module.panorama]
 }
 
 # Create the OUTBOUND vm-series
-# create a vm-series fw
 module "outbound-vm-series" {
   source = "./modules/vm"
 
   location = var.location
   name_prefix = "${var.name_prefix}-outbound"
+  username = var.username
+  password = var.password
+
   subnet-mgmt = module.networks.subnet-mgmt
   subnet-private = module.networks.subnet-private
   subnet-public = module.networks.subnet-public
+
   bootstrap-storage-account = module.panorama.bootstrap-storage-account
   bootstrap-share-name = module.panorama.outbound-bootstrap-share-name
+  depends_on = [module.panorama]
 }
 
 # Deploy the inbound load balancer for traffic into the azure environment
@@ -76,26 +90,6 @@ module "outbound-lb" {
   backend-subnet = module.networks.subnet-private.id
 }
 
-module "onboard-test-vnet" {
-  source = "./modules/onboard-vnet"
-  lb-ip = var.olb-private-ip
-  remote-vnet = module.test-host.vnet
-  remote-subnet = module.test-host.subnet
-  location = var.location
-  name_prefix = var.name_prefix
-}
-
-# Create a test-host for validation
-module "test-host" {
-  source = "./modules/test-vnet"
-  location = var.location
-  name_prefix = var.name_prefix
-  peer-vnet = module.networks.transit-vnet
-  admin-password = var.admin-password
-  route-table-id = module.onboard-test-vnet.route-table-id
-}
-
-
 output "PANORAMA-IP" {
   value = module.panorama.panorama-publicip
 }
@@ -106,4 +100,8 @@ output "VM-IP" {
 
 output "Inbound-PIPS" {
   value = module.inbound-lb.pip-ips
+}
+
+output "storage-key" {
+  value = module.panorama.storage-key
 }

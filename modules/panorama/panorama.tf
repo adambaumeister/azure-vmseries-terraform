@@ -52,8 +52,8 @@ resource "azurerm_virtual_machine" "panorama" {
   }
   os_profile {
     computer_name  = "hostname"
-    admin_username = "panadmin"
-    admin_password = "NicePassword!"
+    admin_username = var.username
+    admin_password = var.password
   }
   os_profile_linux_config {
     disable_password_authentication = false
