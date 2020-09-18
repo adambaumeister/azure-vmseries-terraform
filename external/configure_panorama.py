@@ -35,7 +35,8 @@ OPTIONAL_ARGS={
 def connect(query: dict):
     connected = False
     failures = 0
-    max_failures = 10
+    # Retry for 10 minutes
+    max_failures = 20
     while not connected:
         if failures >= max_failures:
             raise PanoramaError("Failed to connect to panorama at {}".format(query["panorama_ip"]))
