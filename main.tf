@@ -8,13 +8,22 @@ terraform {
   }
 }
 
-# Setup all the networking
+# Setup all the networks required for the topology
 module "networks" {
   source = "./modules/networks"
   location = var.location
   management_ips = var.management_ips
   name_prefix = var.name_prefix
-  olb-ip = var.olb-private-ip
+
+  management_vnet_prefix = var.management_vnet_prefix
+  management_subnet = var.management_subnet
+
+  olb_private_ip = var.olb_private_ip
+
+  firewall_vnet_prefix = var.firewall_vnet_prefix
+  private_subnet = var.private_subnet
+  public_subnet = var.public_subnet
+  vm_management_subnet = var.vm_management_subnet
 }
 
 # Create a panorama instance
@@ -86,7 +95,7 @@ module "outbound-lb" {
   backend-nics = toset([
     module.outbound-vm-series.inside-nic
   ])
-  private-ip = var.olb-private-ip
+  private-ip = var.olb_private_ip
   backend-subnet = module.networks.subnet-private.id
 }
 
