@@ -11,7 +11,7 @@ variable "panorama_size" {
   default = "Standard_D5_v2"
 }
 
-variable "subnet-mgmt" {
+variable "subnet_mgmt" {
   description = "Management subnet."
 }
 
@@ -27,4 +27,11 @@ variable "password" {
 variable "bootstrap_key_lifetime" {
   description = "Default key lifetime for bootstrap."
   default = "8760"
+}
+
+variable "panorama_sku" {
+  default = "byol"
+}
+variable "panorama_version" {
+  default = "9.0.5"
 }

@@ -32,14 +32,17 @@ module "panorama" {
 
   location = var.location
   name_prefix = var.name_prefix
-  subnet-mgmt = module.networks.panorama-mgmt-subnet
+  subnet_mgmt = module.networks.panorama-mgmt-subnet
 
   username = var.username
   password = var.password
+
+  panorama_sku = var.panorama_sku
+  panorama_version = var.panorama_version
 }
 
 # Create the INBOUND vm-series
-module "vm-series" {
+module "inbound-vm-series" {
   source = "./modules/vm"
 
   location = var.location
@@ -83,7 +86,7 @@ module "inbound-lb" {
   name_prefix = var.name_prefix
   rules = var.rules
   backend-nics = toset([
-        module.vm-series.outside-nic
+        module.inbound-vm-series.public-nic
   ])
 }
 
@@ -93,7 +96,7 @@ module "outbound-lb" {
   location = var.location
   name_prefix = var.name_prefix
   backend-nics = toset([
-    module.outbound-vm-series.inside-nic
+    module.outbound-vm-series.private-nic
   ])
   private-ip = var.olb_private_ip
   backend-subnet = module.networks.subnet-private.id
@@ -101,16 +104,4 @@ module "outbound-lb" {
 
 output "PANORAMA-IP" {
   value = module.panorama.panorama-publicip
-}
-
-output "VM-IP" {
-  value = module.vm-series.ip
-}
-
-output "Inbound-PIPS" {
-  value = module.inbound-lb.pip-ips
-}
-
-output "storage-key" {
-  value = module.panorama.storage-key
 }

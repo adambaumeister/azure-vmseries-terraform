@@ -18,10 +18,9 @@ resource "azurerm_network_interface" "mgmt" {
   name = "${var.name_prefix}-nic-mgmt"
   resource_group_name = azurerm_resource_group.panorama.name
   ip_configuration {
-    subnet_id = var.subnet-mgmt.id
+    subnet_id = var.subnet_mgmt.id
     name = "${var.name_prefix}-ip-mgmt"
-    private_ip_address_allocation = "static"
-    private_ip_address = "10.10.10.10"
+    private_ip_address_allocation = "dynamic"
     public_ip_address_id = azurerm_public_ip.panorama-pip-mgmt.id
   }
 }
@@ -41,8 +40,8 @@ resource "azurerm_virtual_machine" "panorama" {
   storage_image_reference {
     publisher = "paloaltonetworks"
     offer     = "panorama"
-    sku       = "byol"
-    version   = "9.0.5"
+    sku       = var.panorama_sku
+    version   = var.panorama_version
   }
   storage_os_disk {
     name              = "${var.name_prefix}PanoramaDisk"

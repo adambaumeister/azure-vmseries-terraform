@@ -13,7 +13,7 @@ resource "azurerm_public_ip" "pip-fw-mgmt" {
   resource_group_name = azurerm_resource_group.vmseries.name
 }
 # Create another PIP for the outside interface so we can talk outbound
-resource "azurerm_public_ip" "pip-fw-outside" {
+resource "azurerm_public_ip" "pip-fw-public" {
   allocation_method = "Static"
   location = azurerm_resource_group.vmseries.location
   name = "${var.name_prefix}-outside-fw-pip"
@@ -34,9 +34,9 @@ resource "azurerm_network_interface" "nic-fw-mgmt" {
   }
 }
 
-resource "azurerm_network_interface" "nic-fw-inside" {
+resource "azurerm_network_interface" "nic-fw-private" {
   location = azurerm_resource_group.vmseries.location
-  name = "${var.name_prefix}-nic-fw-inside"
+  name = "${var.name_prefix}-nic-fw-private"
   resource_group_name = azurerm_resource_group.vmseries.name
   ip_configuration {
     subnet_id = var.subnet-private.id
@@ -47,16 +47,16 @@ resource "azurerm_network_interface" "nic-fw-inside" {
   enable_ip_forwarding = true
 }
 
-resource "azurerm_network_interface" "nic-fw-outside" {
+resource "azurerm_network_interface" "nic-fw-public" {
   location = azurerm_resource_group.vmseries.location
-  name = "${var.name_prefix}-nic-fw-outside"
+  name = "${var.name_prefix}-nic-fw-public"
   resource_group_name = azurerm_resource_group.vmseries.name
   ip_configuration {
     subnet_id = var.subnet-public.id
     name = "${var.name_prefix}-fw-ip-outside"
     private_ip_address_allocation = "dynamic"
     //private_ip_address = "172.16.2.10"
-    public_ip_address_id = azurerm_public_ip.pip-fw-outside.id
+    public_ip_address_id = azurerm_public_ip.pip-fw-public.id
 
   }
   enable_ip_forwarding = true
@@ -69,16 +69,16 @@ resource "azurerm_virtual_machine" "fw" {
   name = "${var.name_prefix}-fw"
   network_interface_ids = [
     azurerm_network_interface.nic-fw-mgmt.id,
-    azurerm_network_interface.nic-fw-inside.id,
-    azurerm_network_interface.nic-fw-outside.id
+    azurerm_network_interface.nic-fw-private.id,
+    azurerm_network_interface.nic-fw-public.id
   ]
   resource_group_name = azurerm_resource_group.vmseries.name
   vm_size = var.vmseries_size
   storage_image_reference {
     publisher = "paloaltonetworks"
     offer     = "vmseries1"
-    sku       = "bundle2"
-    version   = "9.0.4"
+    sku       = var.vm_series_sku
+    version   = var.vm_series_sku
   }
 
   storage_os_disk {

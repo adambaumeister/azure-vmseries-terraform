@@ -39,3 +39,9 @@ variable "username" {
 variable "password" {
   description = "Password for VM Series firewalls"
 }
+variable "vm_series_sku" {
+  default = "bundle2"
+}
+variable "vm_series_version" {
+  default = "9.0.4"
+}
