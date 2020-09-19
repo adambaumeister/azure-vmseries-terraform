@@ -29,7 +29,6 @@ resource "azurerm_network_interface" "nic-fw-mgmt" {
     subnet_id = var.subnet-mgmt.id
     name = "${var.name_prefix}-fw-ip-mgmt"
     private_ip_address_allocation = "dynamic"
-    //private_ip_address = "172.16.0.10"
     public_ip_address_id = azurerm_public_ip.pip-fw-mgmt.id
   }
 }
@@ -78,7 +77,7 @@ resource "azurerm_virtual_machine" "fw" {
     publisher = "paloaltonetworks"
     offer     = "vmseries1"
     sku       = var.vm_series_sku
-    version   = var.vm_series_sku
+    version   = var.vm_series_version
   }
 
   storage_os_disk {

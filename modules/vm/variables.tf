@@ -45,3 +45,7 @@ variable "vm_series_sku" {
 variable "vm_series_version" {
   default = "9.0.4"
 }
+
+variable "vm_series_count" {
+  default = 1
+}

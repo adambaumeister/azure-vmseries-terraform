@@ -58,6 +58,8 @@ module "inbound-vm-series" {
   bootstrap-share-name = module.panorama.inbound-bootstrap-share-name
 
   depends_on = [module.panorama]
+
+  vm_series_count = 2
 }
 
 # Create the OUTBOUND vm-series

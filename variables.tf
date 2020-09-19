@@ -81,6 +81,10 @@ variable "rules" {
 #----------------------#
 #      VM Options      #
 #----------------------#
+# Total number of VM series per direction (inbound/outbound) to deploy
+variable "vm_series_count" {
+  default = 1
+}
 
 variable "panorama_sku" {
   default = "byol"
