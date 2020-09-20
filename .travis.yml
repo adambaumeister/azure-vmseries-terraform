@@ -5,6 +5,7 @@ matrix:
   include:
     - name: "Python 3.7 on Xenial Linux"
       script:
+        - pip3 install -r external/requirements.txt
         - pyinstaller -F external/configure_panorama.py
         - cp dist/configure_panorama modules/panorama/
         - cd ..
