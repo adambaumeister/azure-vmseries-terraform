@@ -4,13 +4,15 @@ language: python            # this works for Linux but is an error on macOS or W
 matrix:
   include:
     - name: "Python 3.7 on Xenial Linux"
-      python: 3.7           # this works for Linux but is ignored on macOS or Windows
-      dist: xenial          # required for Python >= 3.7
-      before_deploy:
+      script:
         - pyinstaller -F external/configure_panorama.py
         - cp dist/configure_panorama modules/panorama/
         - cd ..
         - zip -r bundle-linux.zip *
+      python: 3.7           # this works for Linux but is ignored on macOS or Windows
+      dist: xenial          # required for Python >= 3.7
+      before_deploy:
+
       deploy:
         - provider: releases
           api_key: $api_token
@@ -20,7 +22,5 @@ matrix:
           on:
             tags: true
 
-script:
-  - pip3 install -r external/requirements.txt
 notifications:
   email: false
