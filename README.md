@@ -3,6 +3,10 @@
     <img src="https://raw.githubusercontent.com/adambaumeister/azure-vmseries-terraform/master/images/azure.png" alt="Azure Logo" height="100px">
 </div>
 
+<div align="center">
+    <img src="https://raw.githubusercontent.com/adambaumeister/azure-vmseries-terraform/master/images/pan.png" alt="Pan Logo" height="75px">
+</div>
+
 # <div align="center">VM-Series on Azure Terraform Templates</div>
 
 ## :rabbit2: Quickstart  
@@ -20,5 +24,6 @@ terraform init
 ```
 6. Apply!
 ```
-terraform apply
+terraform apply --var-file=example.tfvars 
 ```
+
