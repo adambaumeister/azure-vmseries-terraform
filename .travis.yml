@@ -20,19 +20,19 @@ matrix:
           on:
             tags: true
 
-    - name: "Python 3.7.3 on Windows"
+    - name: "Python 3.8 on Windows"
       os: windows           # Windows 10.0.17134 N/A Build 17134
       language: shell       # 'language: python' is an error on Travis CI Windows
+      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
       install:
-        - pip3 install -r requirements.txt
+        - pip3 install -r external/requirements.txt
       before_install:
         - choco install python  # this install takes at least 1 min 30 sec
-        - python -m pip install --upgrade pip
+        - pip3 install --upgrade pip
       script:
         - pyinstaller -F external/configure_panorama.py
         - cp dist/configure_panorama.exe modules/panorama/
         - zip -ur bundle-windows.zip variables.tf README.md modules main.tf external
-      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
       deploy:
         - provider: releases
           api_key: $api_token
