@@ -28,6 +28,7 @@ matrix:
         - pip3 install -r external/requirements.txt
       before_install:
         - choco install python  # this install takes at least 1 min 30 sec
+        - choco install zip  # this install takes at least 1 min 30 sec
       script:
         - pyinstaller -F external/configure_panorama.py
         - cp dist/configure_panorama.exe modules/panorama/
