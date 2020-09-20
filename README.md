@@ -10,7 +10,7 @@
 # <div align="center">VM-Series Azure Terraform Templates</div>
 
 ## :question: Overview
-This repository deploys a Transit-VNET deployment of the Palo Alto VM-Series Firewalls on Azure.
+This repository deploys all the components of a Transit-VNET topoloy using Palo Alto VM-Series Next Generation Firewalls and Panorama.
 
 ## :rabbit2: Quickstart  
 1. [Install Terraform](https://www.terraform.io/downloads.html)
