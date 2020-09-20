@@ -1,0 +1,26 @@
+# Discussed at https://travis-ci.community/t/python-support-on-windows/241/18
+#
+language: python            # this works for Linux but is an error on macOS or Windows
+matrix:
+  include:
+    - name: "Python 3.7 on Xenial Linux"
+      python: 3.7           # this works for Linux but is ignored on macOS or Windows
+      dist: xenial          # required for Python >= 3.7
+      before_deploy:
+        - pip3 install external/requirements.txt
+        - pyinstaller -F external/configure_panorama.py
+        - cp dist/configure_panorama modules/panorama/
+        - cd ..
+        - zip -r bundle-linux.zip *
+      deploy:
+        - provider: releases
+          api_key: $api_token
+          file:
+            - "bundle-linux.zip"
+          skip_cleanup: true
+          on:
+            tags: true
+
+
+notifications:
+  email: false
