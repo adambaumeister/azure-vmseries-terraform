@@ -21,6 +21,6 @@ matrix:
             tags: true
 
 script:
-  - pip3 install external/requirements.txt
+  - pip3 install -r external/requirements.txt
 notifications:
   email: false
