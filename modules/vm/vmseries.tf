@@ -33,7 +33,7 @@ resource "azurerm_virtual_machine_scale_set" "inbound-scale-set" {
     ip_configuration {
       name = "${var.name_prefix}-inbound-nic-fw-public"
       primary = false
-      subnet_id = var.subnet-private.id
+      subnet_id = var.subnet-public.id
       load_balancer_backend_address_pool_ids = [
         var.public_backend_pool_id]
     }
@@ -96,6 +96,7 @@ resource "azurerm_virtual_machine_scale_set" "outbound-scale-set" {
   name = "${var.name_prefix}-outbound-scaleset"
   resource_group_name = azurerm_resource_group.vmseries.name
   upgrade_policy_mode = "Manual"
+
   network_profile {
     name = "${var.name_prefix}-outbound-nic-fw-mgmt-profile"
     primary = true
@@ -118,7 +119,7 @@ resource "azurerm_virtual_machine_scale_set" "outbound-scale-set" {
     ip_configuration {
       name = "${var.name_prefix}-outbound-nic-fw-public"
       primary = false
-      subnet_id = var.subnet-private.id
+      subnet_id = var.subnet-public.id
       public_ip_address_configuration {
         idle_timeout = 4
         name = "${var.name_prefix}-outbound-fw-public-pip"

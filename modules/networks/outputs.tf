@@ -16,3 +16,7 @@ output "vm-mgmt" {
 output "panorama-mgmt-subnet" {
   value = azurerm_subnet.subnet-panorama-mgmt
 }
+
+output "outbound-route-table" {
+  value = azurerm_route_table.udr-inside.id
+}

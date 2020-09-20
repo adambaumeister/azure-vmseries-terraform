@@ -84,6 +84,16 @@ module "vm-series" {
   public_backend_pool_id = module.inbound-lb.backend-pool-id
 }
 
+# Create a test VNET
+module "test-host" {
+  source = "./modules/test-vnet"
+  admin-password = var.password
+  location = var.location
+  name_prefix = var.name_prefix
+  peer-vnet = module.networks.transit-vnet
+  route-table-id = module.networks.outbound-route-table
+}
+
 
 output "PANORAMA-IP" {
   value = module.panorama.panorama-publicip
