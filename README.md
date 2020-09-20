@@ -7,7 +7,10 @@
     <img src="https://raw.githubusercontent.com/adambaumeister/azure-vmseries-terraform/master/images/pan.png" alt="Pan Logo" height="75px">
 </div>
 
-# <div align="center">VM-Series on Azure Terraform Templates</div>
+# <div align="center">VM-Series Azure Terraform Templates</div>
+
+## :question: Overview
+This repository deploys a Transit-VNET deployment of the Palo Alto VM-Series Firewalls on Azure.
 
 ## :rabbit2: Quickstart  
 1. [Install Terraform](https://www.terraform.io/downloads.html)
@@ -27,3 +30,5 @@ terraform init
 terraform apply --var-file=example.tfvars 
 ```
 
+## :beetle: Getting help
+[Open an Issue on Github](https://github.com/adambaumeister/azure-vmseries-terraform/issues)
