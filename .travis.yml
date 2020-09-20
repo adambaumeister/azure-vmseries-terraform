@@ -7,7 +7,6 @@ matrix:
       python: 3.7           # this works for Linux but is ignored on macOS or Windows
       dist: xenial          # required for Python >= 3.7
       before_deploy:
-        - pip3 install external/requirements.txt
         - pyinstaller -F external/configure_panorama.py
         - cp dist/configure_panorama modules/panorama/
         - cd ..
@@ -21,6 +20,7 @@ matrix:
           on:
             tags: true
 
-
+script:
+  - pip3 install external/requirements.txt
 notifications:
   email: false
