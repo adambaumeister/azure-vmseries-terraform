@@ -10,8 +10,6 @@ variable "private-ip" {
   description = "Private IP address to assign to the frontend of the loadbalancer"
 }
 
-variable "backend-nics" {
-}
 
 variable "backend-subnet" {
 }

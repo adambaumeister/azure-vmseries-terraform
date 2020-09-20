@@ -22,3 +22,7 @@ output "outbound-bootstrap-share-name" {
 output "storage-key" {
   value = azurerm_storage_account.bootstrap-storage-account.primary_access_key
 }
+
+output "storage-container-name" {
+  value = azurerm_storage_container.vm-sc.name
+}

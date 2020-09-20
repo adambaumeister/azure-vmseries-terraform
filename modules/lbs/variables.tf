@@ -13,6 +13,3 @@ variable "rules" {
   }))
 }
 
-variable "backend-nics" {
-}
-

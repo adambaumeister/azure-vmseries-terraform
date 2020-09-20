@@ -27,7 +27,11 @@ variable "bootstrap-storage-account" {
   description = "Storage account setup for bootstrapping"
 }
 
-variable "bootstrap-share-name" {
+variable "inbound-bootstrap-share-name" {
+  description = "File share for bootstrap config"
+}
+
+variable "outbound-bootstrap-share-name" {
   description = "File share for bootstrap config"
 }
 
@@ -48,4 +52,14 @@ variable "vm_series_version" {
 
 variable "vm_series_count" {
   default = 1
+}
+
+variable "vhd-container" {
+}
+
+variable "public_backend_pool_id" {
+  description = "The LB pool to associate the public interface with."
+}
+variable "private_backend_pool_id" {
+  description = "The LB pool to associate the private interface with."
 }

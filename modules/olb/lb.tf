@@ -26,14 +26,6 @@ resource "azurerm_lb_backend_address_pool" "lb-backend" {
   resource_group_name = azurerm_resource_group.rg-lb.name
 }
 
-resource "azurerm_network_interface_backend_address_pool_association" "lb-backend-assoc" {
-  for_each = { for nic in var.backend-nics : nic.name => nic }
-  backend_address_pool_id = azurerm_lb_backend_address_pool.lb-backend.id
-  ip_configuration_name = each.value.ip_configuration[0].name
-  network_interface_id = each.value.id
-
-}
-
 resource "azurerm_lb_probe" "probe" {
   loadbalancer_id = azurerm_lb.lb.id
   name = "${var.name_prefix}-olb-probe-80"

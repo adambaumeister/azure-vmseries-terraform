@@ -79,3 +79,9 @@ data "external" "panorama_bootstrap" {
     output_dir    = path.module
   }
 }
+
+# Create a storage container for storing VM disks provisioned via VMSS
+resource "azurerm_storage_container" "vm-sc" {
+  name = "${var.name_prefix}-vm-container"
+  storage_account_name = azurerm_storage_account.bootstrap-storage-account.name
+}
