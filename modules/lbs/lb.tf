@@ -15,11 +15,11 @@ resource "azurerm_public_ip" "lb-fip-pip" {
   resource_group_name = azurerm_resource_group.rg-lb.name
 }
 
-resource "azurerm_public_ip" "lb-outbound-fip-pip" {
+resource "azurerm_public_ip" "lb-inbound-fip-pip" {
   allocation_method = "Static"
   sku = "standard"
   location = azurerm_resource_group.rg-lb.location
-  name = "${var.name_prefix}-outbound-fip-pip"
+  name = "${var.name_prefix}-inbound-fip-pip"
   resource_group_name = azurerm_resource_group.rg-lb.name
 }
 
@@ -37,7 +37,7 @@ resource "azurerm_lb" "lb" {
   }
   frontend_ip_configuration {
     name = "${var.name_prefix}-outbound-fip"
-    public_ip_address_id = azurerm_public_ip.lb-outbound-fip-pip.id
+    public_ip_address_id = azurerm_public_ip.lb-inbound-fip-pip.id
   }
 }
 
