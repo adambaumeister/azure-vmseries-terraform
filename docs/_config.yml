@@ -1,5 +1,3 @@
 theme: jekyll-theme-cayman
 description: |
-  <img src="img/moxsoar_logo_bg.svg" width="150"><br>
-  Navigation<br>
-    <a href="index">Overview</a><br>
+  <a href="index" class="margin-2 header-link">Overview</a><a href="panorama" class="margin-2 header-link">Panorama Configuration</a>

@@ -1,0 +1,13 @@
+---
+---
+$header-bg-color: #FF5722;
+$header-bg-color-secondary: #ff9800;
+$section-headings-color: #ff9800;
+@import "{{ site.theme }}";
+
+.margin-2 {
+	margin: 5px;
+}
+.header-link {
+	color: white;
+}
