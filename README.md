@@ -4,7 +4,7 @@
 </div>
 
 <div align="center">
-    <img src="https://raw.githubusercontent.com/adambaumeister/azure-vmseries-terraform/master/images/pan.png" alt="Pan Logo" height="75px">
+    <img src="https://raw.githubusercontent.com/adambaumeister/azure-vmseries-terraform/master/images/pan.png" alt="Pan Logo" height="25px">
 </div>
 
 # <div align="center">VM-Series Azure Terraform Templates</div>
@@ -30,5 +30,11 @@ terraform init
 terraform apply --var-file=example.tfvars 
 ```
 
+## :scroll: Documentation
+To know post-provisioning steps and for help standing up Panorama, [click here](https://adambaumeister.github.io/azure-vmseries-terraform/panorama.html)
+
+For more detailed documentation including the network topology and more, proceed to [Detailed Documentation](https://adambaumeister.github.io/azure-vmseries-terraform/index)
+
 ## :beetle: Getting help
 [Open an Issue on Github](https://github.com/adambaumeister/azure-vmseries-terraform/issues)
+
