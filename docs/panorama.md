@@ -21,6 +21,7 @@ This is an unconfigured instance of panorama, and you still need to perform the 
 The following sections walk through each step in detail.
 
 ## License Panorama
+<img src="images/pan_sn.png" alt="topology" class="inline"/>
 
 Login to the public IP of the panorama instance using https://[PANORAMA-IP] and the username/password you specified in
 variables.
@@ -29,4 +30,17 @@ Immediately you will be presented by the popup warning you that Panorama is Unli
 in the *General Settings* section, set the serial number associated with your Panorama license in the support portal.
 
 From Panorama->Licenses, click *retrieve licenses from license server* to license panorama.
+
+## Configure Device Groups and Template Stack
+
+<img src="images/pan_dg.png" alt="topology" class="inline"/>
+
+
+This terraform template automatically bootstraps the firewalls such that they are automatically connected into the following
+device-groups and template stacks;
+* INBOUND 
+* OUTBOUND
+
+You must configure Panorama with these exact names before the firewalls are configurable. As soon as they are configured
+and committed, the firewalls will appear.
 
