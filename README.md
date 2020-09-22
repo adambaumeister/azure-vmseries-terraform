@@ -3,7 +3,14 @@
     <img src="https://raw.githubusercontent.com/adambaumeister/azure-vmseries-terraform/master/images/azure.png" alt="Azure Logo" height="100px">
 </div>
 
-# <div align="center">VM-Series on Azure Terraform Templates</div>
+<div align="center">
+    <img src="https://raw.githubusercontent.com/adambaumeister/azure-vmseries-terraform/master/images/pan.png" alt="Pan Logo" height="75px">
+</div>
+
+# <div align="center">VM-Series Azure Terraform Templates</div>
+
+## :question: Overview
+This repository deploys all the components of a Transit-VNET topoloy using Palo Alto VM-Series Next Generation Firewalls and Panorama.
 
 ## :rabbit2: Quickstart  
 1. [Install Terraform](https://www.terraform.io/downloads.html)
@@ -20,5 +27,8 @@ terraform init
 ```
 6. Apply!
 ```
-terraform apply
+terraform apply --var-file=example.tfvars 
 ```
+
+## :beetle: Getting help
+[Open an Issue on Github](https://github.com/adambaumeister/azure-vmseries-terraform/issues)
