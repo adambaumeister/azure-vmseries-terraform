@@ -88,7 +88,7 @@ resource "azurerm_network_security_rule" "outside-allowall-outbound" {
 # Permit the external (admin) ips access  to the management networks.
 resource "azurerm_network_security_rule" "management-rules" {
   for_each = var.management_ips
-  name = "${var.name_prefix}-panorama-mgmt-sgrule-${each.key}-mgmt"
+  name = "${var.name_prefix}-panorama-mgmt-sgrule-${each.value}-mgmt"
   resource_group_name = azurerm_resource_group.rg.name
   access = "Allow"
   direction = "Inbound"
@@ -104,7 +104,7 @@ resource "azurerm_network_security_rule" "management-rules" {
 # Permit the external (admin) ips access  to the management networks.
 resource "azurerm_network_security_rule" "vm-management-rules" {
   for_each = var.management_ips
-  name = "${var.name_prefix}-panorama-mgmt-sgrule-${each.key}-mgmt"
+  name = "${var.name_prefix}-panorama-mgmt-sgrule-${each.value}-mgmt"
   resource_group_name = azurerm_resource_group.rg.name
   access = "Allow"
   direction = "Inbound"
