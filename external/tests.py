@@ -29,6 +29,3 @@ if __name__ == '__main__':
     query = parse_args(query)
     r = gen_inbound_init_cfgs(query, "012345678910")
 
-    if query["panorama_ip"]:
-        bootstrap(query)
-

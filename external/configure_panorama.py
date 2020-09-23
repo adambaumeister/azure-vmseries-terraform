@@ -60,6 +60,10 @@ def gen_inbound_init_cfgs(query: dict, vm_auth_key:str):
         dns_ip=query["dns_server"]
     )
     fp = os.path.join(query["output_dir"], OUTPUT_DIR, "init-cfg-inbound.txt")
+    fd = os.path.join(query["output_dir"], OUTPUT_DIR)
+    if not os.path.isdir(fd):
+        os.mkdir(fd)
+
     fh = open(fp, mode="w")
     fh.write(inbound_config)
     fh.close()
@@ -77,6 +81,10 @@ def gen_outbound_init_cfgs(query: dict, vm_auth_key:str):
     )
 
     fp = os.path.join(query["output_dir"], OUTPUT_DIR, "init-cfg-outbound.txt")
+    fd = os.path.join(query["output_dir"], OUTPUT_DIR)
+    if not os.path.isdir(fd):
+        os.mkdir(fd)
+
     fh = open(fp, mode="w")
     fh.write(outbound_config)
     fh.close()
