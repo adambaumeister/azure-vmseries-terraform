@@ -1,12 +1,10 @@
 # Configure the Azure provider
-terraform {
-  required_providers {
-    azure = {
-      source  = "hashicorp/azurerm"
-      version = "~>1.32.0"
-    }
-  }
+provider "azurerm" {
+  # whilst the `version` attribute is optional, we recommend pinning to a given version of the Provider
+  version = "=2.20.0"
+  features {}
 }
+
 
 # Setup all the networks required for the topology
 module "networks" {

@@ -8,7 +8,7 @@ matrix:
         - pip3 install -r external/requirements.txt
         - pyinstaller -F external/configure_panorama.py
         - cp dist/configure_panorama modules/panorama/configure_panorama.exe
-        - zip -ur bundle-linux.zip variables.tf README.md modules main.tf external
+        - zip -ur bundle-linux.zip variables.tf example.tfvars README.md modules main.tf external
       python: 3.7           # this works for Linux but is ignored on macOS or Windows
       dist: xenial          # required for Python >= 3.7
       deploy:
@@ -32,7 +32,7 @@ matrix:
         - pip3 install -r external/requirements.txt
         - pyinstaller -F external/configure_panorama.py
         - cp dist/configure_panorama.exe modules/panorama/configure_panorama.exe
-        - zip -ur bundle-windows.zip variables.tf README.md modules main.tf external
+        - zip -ur bundle-windows.zip variables.tf example.tfvars README.md modules main.tf external
       deploy:
         - provider: releases
           api_key: $api_token
@@ -50,7 +50,7 @@ matrix:
         - pip3 install -r external/requirements.txt
         - pyinstaller -F external/configure_panorama.py
         - cp dist/configure_panorama modules/panorama/configure_panorama.exe
-        - zip -ur bundle-macOS.zip variables.tf README.md modules main.tf external
+        - zip -ur bundle-macOS.zip variables.tf example.tfvars README.md modules main.tf external
       deploy:
         - provider: releases
           api_key: $api_token
