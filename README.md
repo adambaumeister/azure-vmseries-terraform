@@ -21,11 +21,12 @@ This repository deploys all the components of a Transit-VNET topoloy using Palo 
 ```
 az login
 ```
-5. Init terraform
+5. Correctly populate the variables in the vars file example.tfvars
+6. Init terraform
 ```
 terraform init
 ```
-6. Apply!
+7. Apply!
 ```
 terraform apply --var-file=example.tfvars 
 ```

@@ -1,3 +1,6 @@
 theme: jekyll-theme-cayman
 description: |
-  <a href="index" class="margin-2 header-link">Overview</a><a href="panorama" class="margin-2 header-link">Panorama Configuration</a>
+  <a href="index" class="margin-2 header-link">Overview</a>
+  <a href="panorama" class="margin-2 header-link">Panorama Configuration</a>
+  <a href="topology" class="margin-2 header-link">Network Topology</a>
+  <a href="customization" class="margin-2 header-link">Customization</a>

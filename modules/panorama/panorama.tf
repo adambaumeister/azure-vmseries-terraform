@@ -1,9 +1,3 @@
-# Base resource group
-resource "azurerm_resource_group" "panorama" {
-  location = var.location
-  name = "${var.name_prefix}-rg-panorama"
-}
-
 # Create a public IP for management
 resource "azurerm_public_ip" "panorama-pip-mgmt" {
   allocation_method = "Static"
