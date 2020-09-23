@@ -42,5 +42,24 @@ matrix:
           on:
             tags: true
 
+    - name: "Python on macOS"
+      os: osx
+      osx_image: xcode12  # Python 3.7.2 running on macOS 10.14.3
+      language: shell       # 'language: python' is an error on Travis CI macOS
+      script:
+        - pip3 install -r external/requirements.txt
+        - pyinstaller -F external/configure_panorama.py
+        - cp dist/configure_panorama modules/panorama/
+        - zip -ur bundle-linux.zip variables.tf README.md modules main.tf external
+      deploy:
+        - provider: releases
+          api_key: $api_token
+          file:
+            - "bundle-macOS.zip"
+          skip_cleanup: true
+          on:
+            tags: true
+
+
 notifications:
   email: false
