@@ -1,7 +1,7 @@
 output "pip-ips" {
 
   value = {
-    for pip in azurerm_public_ip.lb-fip-pip:
+    for pip in azurerm_public_ip.lb-fip-pip :
     pip.id => pip.ip_address
   }
 }

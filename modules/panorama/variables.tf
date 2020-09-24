@@ -8,7 +8,7 @@ variable "name_prefix" {
 
 variable "panorama_size" {
   description = "Default size for Panorama"
-  default = "Standard_D5_v2"
+  default     = "Standard_D5_v2"
 }
 
 variable "subnet_mgmt" {
@@ -17,7 +17,7 @@ variable "subnet_mgmt" {
 
 variable "username" {
   description = "Username"
-  default = "panadmin"
+  default     = "panadmin"
 }
 
 variable "password" {
@@ -26,7 +26,7 @@ variable "password" {
 
 variable "bootstrap_key_lifetime" {
   description = "Default key lifetime for bootstrap."
-  default = "8760"
+  default     = "8760"
 }
 
 variable "panorama_sku" {

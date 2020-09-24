@@ -1,21 +1,21 @@
 # Create a public IP for management
 resource "azurerm_public_ip" "panorama-pip-mgmt" {
-  allocation_method = "Static"
-  location = azurerm_resource_group.panorama.location
-  name = "${var.name_prefix}-panorama-pip"
+  allocation_method   = "Static"
+  location            = azurerm_resource_group.panorama.location
+  name                = "${var.name_prefix}-panorama-pip"
   resource_group_name = azurerm_resource_group.panorama.name
 }
 
 # Build the management interface
 resource "azurerm_network_interface" "mgmt" {
-  location = azurerm_resource_group.panorama.location
-  name = "${var.name_prefix}-nic-mgmt"
+  location            = azurerm_resource_group.panorama.location
+  name                = "${var.name_prefix}-nic-mgmt"
   resource_group_name = azurerm_resource_group.panorama.name
   ip_configuration {
-    subnet_id = var.subnet_mgmt.id
-    name = "${var.name_prefix}-ip-mgmt"
+    subnet_id                     = var.subnet_mgmt.id
+    name                          = "${var.name_prefix}-ip-mgmt"
     private_ip_address_allocation = "dynamic"
-    public_ip_address_id = azurerm_public_ip.panorama-pip-mgmt.id
+    public_ip_address_id          = azurerm_public_ip.panorama-pip-mgmt.id
   }
 }
 
@@ -28,7 +28,7 @@ resource "azurerm_virtual_machine" "panorama" {
   network_interface_ids = [azurerm_network_interface.mgmt.id]
   vm_size               = var.panorama_size
 
-  delete_os_disk_on_termination = true
+  delete_os_disk_on_termination    = true
   delete_data_disks_on_termination = true
 
   storage_image_reference {
@@ -52,8 +52,8 @@ resource "azurerm_virtual_machine" "panorama" {
     disable_password_authentication = false
   }
   plan {
-    name = "byol"
-    product = "panorama"
+    name      = "byol"
+    product   = "panorama"
     publisher = "paloaltonetworks"
   }
 }
