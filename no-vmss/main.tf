@@ -8,7 +8,7 @@ provider "azurerm" {
 
 # Setup all the networks required for the topology
 module "networks" {
-  source         = "./modules/networks"
+  source         = "../modules/networks"
   location       = var.location
   management_ips = var.management_ips
   name_prefix    = var.name_prefix
@@ -26,7 +26,7 @@ module "networks" {
 
 # Create a panorama instance
 module "panorama" {
-  source = "./modules/panorama"
+  source = "../modules/panorama"
 
   location    = var.location
   name_prefix = var.name_prefix
@@ -41,7 +41,7 @@ module "panorama" {
 
 # Deploy the inbound load balancer for traffic into the azure environment
 module "inbound-lb" {
-  source = "./modules/lbs"
+  source = "../modules/lbs"
 
   location    = var.location
   name_prefix = var.name_prefix
@@ -51,17 +51,26 @@ module "inbound-lb" {
 
 # Deploy the outbound load balancer for traffic out of the azure environment
 module "outbound-lb" {
-  source         = "./modules/olb"
+  source         = "../modules/olb"
   location       = var.location
   name_prefix    = var.name_prefix
   private-ip     = var.olb_private_ip
   backend-subnet = module.networks.subnet-private.id
 }
 
+# Create the vm-series RG outside of the module and pass it in.
+## All the config required for a single VM series Firewall in Azure
+# Base resource group
+resource "azurerm_resource_group" "vmseries" {
+  location = var.location
+  name = "${var.name_prefix}-vmseries-rg"
+}
 
 # Create the inbound and outbound VM Scale sets
 module "vm-series" {
-  source = "modules/vmss"
+  source = "../modules/vm"
+
+  resource_group = azurerm_resource_group.vmseries
 
   location    = var.location
   name_prefix = var.name_prefix
@@ -85,7 +94,7 @@ module "vm-series" {
 
 # Create a test VNET
 module "test-host" {
-  source         = "./modules/test-vnet"
+  source         = "../modules/test-vnet"
   admin-password = var.password
   location       = var.location
   name_prefix    = var.name_prefix

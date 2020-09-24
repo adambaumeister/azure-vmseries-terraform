@@ -1,182 +1,109 @@
-## All the config required for a single VM series Firewall in Azure
-# Base resource group
-resource "azurerm_resource_group" "vmseries" {
-  location = var.location
-  name     = "${var.name_prefix}-vmseries-rg"
+
+# Create a public IP for management
+resource "azurerm_public_ip" "pip-fw-mgmt" {
+  allocation_method = "Static"
+  location = var.resource_group.location
+  name = "${var.name_prefix}-fw-pip"
+  sku = "standard"
+  resource_group_name = var.resource_group.name
+}
+# Create another PIP for the outside interface so we can talk outbound
+resource "azurerm_public_ip" "pip-fw-public" {
+  allocation_method = "Static"
+  location = var.resource_group.location
+  name = "${var.name_prefix}-outside-fw-pip"
+  sku = "standard"
+  resource_group_name = var.resource_group.name
 }
 
-# inbound
-resource "azurerm_virtual_machine_scale_set" "inbound-scale-set" {
-  location            = azurerm_resource_group.vmseries.location
-  name                = "${var.name_prefix}-inbound-scaleset"
-  resource_group_name = azurerm_resource_group.vmseries.name
-  upgrade_policy_mode = "Manual"
-  network_profile {
-    name    = "${var.name_prefix}-inbound-nic-fw-mgmt-profile"
-    primary = true
-    ip_configuration {
-      name      = "${var.name_prefix}-inbound-nic-fw-mgmt"
-      primary   = true
-      subnet_id = var.subnet-mgmt.id
-      public_ip_address_configuration {
-        idle_timeout      = 4
-        name              = "${var.name_prefix}-inbound-fw-mgmt-pip"
-        domain_name_label = "${var.name_prefix}-inbound-vm-mgmt"
-      }
-    }
-    ip_forwarding = true
+resource "azurerm_network_interface" "nic-fw-mgmt" {
+  location = var.resource_group.location
+  name = "${var.name_prefix}-nic-fw-mgmt"
+  resource_group_name = var.resource_group.name
+  ip_configuration {
+    subnet_id = var.subnet-mgmt.id
+    name = "${var.name_prefix}-fw-ip-mgmt"
+    private_ip_address_allocation = "dynamic"
+    public_ip_address_id = azurerm_public_ip.pip-fw-mgmt.id
+  }
+}
+
+resource "azurerm_network_interface" "nic-fw-private" {
+  location = var.resource_group.location
+  name = "${var.name_prefix}-nic-fw-private"
+  resource_group_name = var.resource_group.name
+  ip_configuration {
+    subnet_id = var.subnet-private.id
+    name = "${var.name_prefix}-fw-ip-inside"
+    private_ip_address_allocation = "dynamic"
+    //private_ip_address = "172.16.1.10"
+  }
+  enable_ip_forwarding = true
+}
+
+resource "azurerm_network_interface" "nic-fw-public" {
+  location = var.resource_group.location
+  name = "${var.name_prefix}-nic-fw-public"
+  resource_group_name = var.resource_group.name
+  ip_configuration {
+    subnet_id = var.subnet-public.id
+    name = "${var.name_prefix}-fw-ip-outside"
+    private_ip_address_allocation = "dynamic"
+    //private_ip_address = "172.16.2.10"
+    public_ip_address_id = azurerm_public_ip.pip-fw-public.id
 
   }
-  network_profile {
-    name    = "${var.name_prefix}-inbound-nic-fw-public-profile"
-    primary = false
-    ip_configuration {
-      name      = "${var.name_prefix}-inbound-nic-fw-public"
-      primary   = false
-      subnet_id = var.subnet-public.id
-      load_balancer_backend_address_pool_ids = [
-      var.public_backend_pool_id]
-    }
-    ip_forwarding = true
+  enable_ip_forwarding = true
 
-  }
+}
 
-  network_profile {
-    name    = "${var.name_prefix}-inbound-nic-fw-private-profile"
-    primary = false
-    ip_configuration {
-      name      = "${var.name_prefix}-inbound-nic-fw-private"
-      primary   = false
-      subnet_id = var.subnet-private.id
-    }
-    ip_forwarding = true
-  }
 
-  os_profile {
-    admin_username       = var.username
-    computer_name_prefix = "${var.name_prefix}-inbound-fw"
-    admin_password       = var.password
-
-    custom_data = join(
-      ",",
-      [
-        "storage-account=${var.bootstrap-storage-account.name}",
-        "access-key=${var.bootstrap-storage-account.primary_access_key}",
-        "file-share=${var.inbound-bootstrap-share-name}",
-        "share-directory=None"
-      ]
-    )
-  }
-  storage_profile_image_reference {
+resource "azurerm_virtual_machine" "inbound-fw" {
+  location = var.resource_group.location
+  name = "${var.name_prefix}-fw"
+  network_interface_ids = [
+    azurerm_network_interface.nic-fw-mgmt.id,
+    azurerm_network_interface.nic-fw-public.id,
+    azurerm_network_interface.nic-fw-private.id
+  ]
+  resource_group_name = var.resource_group.name
+  vm_size = var.vmseries_size
+  storage_image_reference {
     publisher = "paloaltonetworks"
     offer     = "vmseries1"
     sku       = var.vm_series_sku
     version   = var.vm_series_version
   }
-  sku {
-    capacity = 1
-    name     = var.vmseries_size
-  }
-  storage_profile_os_disk {
-    create_option  = "FromImage"
-    name           = "${var.name_prefix}-vhd-profile"
-    caching        = "ReadWrite"
-    vhd_containers = ["${var.bootstrap-storage-account.primary_blob_endpoint}${var.vhd-container}"]
-  }
-  plan {
-    name      = "bundle2"
-    publisher = "paloaltonetworks"
-    product   = "vmseries1"
-  }
-}
 
-# Outbound
-resource "azurerm_virtual_machine_scale_set" "outbound-scale-set" {
-  location            = azurerm_resource_group.vmseries.location
-  name                = "${var.name_prefix}-outbound-scaleset"
-  resource_group_name = azurerm_resource_group.vmseries.name
-  upgrade_policy_mode = "Manual"
-
-  network_profile {
-    name    = "${var.name_prefix}-outbound-nic-fw-mgmt-profile"
-    primary = true
-    ip_configuration {
-      name      = "${var.name_prefix}-outbound-nic-fw-mgmt"
-      primary   = true
-      subnet_id = var.subnet-mgmt.id
-      public_ip_address_configuration {
-        idle_timeout      = 4
-        name              = "${var.name_prefix}-outbound-fw-mgmt-pip"
-        domain_name_label = "${var.name_prefix}-outbound-vm-mgmt"
-      }
-    }
-    ip_forwarding = true
-
-  }
-  network_profile {
-    name    = "${var.name_prefix}-outbound-nic-fw-public-profile"
-    primary = false
-    ip_configuration {
-      name      = "${var.name_prefix}-outbound-nic-fw-public"
-      primary   = false
-      subnet_id = var.subnet-public.id
-      public_ip_address_configuration {
-        idle_timeout      = 4
-        name              = "${var.name_prefix}-outbound-fw-public-pip"
-        domain_name_label = "${var.name_prefix}-outbound-vm-public"
-      }
-    }
-    ip_forwarding = true
-
+  storage_os_disk {
+    create_option = "FromImage"
+    name = "${var.name_prefix}-vhd-fw"
+    caching = "ReadWrite"
+    vhd_uri = "${var.bootstrap-storage-account.primary_blob_endpoint}vhds/${var.name_prefix}-fw.vhd"
   }
 
-  network_profile {
-    name    = "${var.name_prefix}-outbound-nic-fw-private-profile"
-    primary = false
-    ip_configuration {
-      name                                   = "${var.name_prefix}-outbound-nic-fw-private"
-      primary                                = false
-      subnet_id                              = var.subnet-private.id
-      load_balancer_backend_address_pool_ids = [var.private_backend_pool_id]
 
-    }
-    ip_forwarding = true
-  }
-
+  primary_network_interface_id = azurerm_network_interface.nic-fw-mgmt.id
   os_profile {
-    admin_username       = var.username
-    computer_name_prefix = "${var.name_prefix}-outbound-fw"
-    admin_password       = var.password
-
+    admin_username = var.username
+    computer_name = "${var.name_prefix}-fw"
+    admin_password = var.password
     custom_data = join(
-      ",",
-      [
-        "storage-account=${var.bootstrap-storage-account.name}",
-        "access-key=${var.bootstrap-storage-account.primary_access_key}",
-        "file-share=${var.outbound-bootstrap-share-name}",
-        "share-directory=None"
-      ]
-    )
+            ",",
+            [
+              "storage-account=${var.bootstrap-storage-account.name}",
+              "access-key=${var.bootstrap-storage-account.primary_access_key}",
+              "file-share=${var.inbound-bootstrap-share-name}",
+              "share-directory=None"
+            ]
+      )
   }
-  storage_profile_image_reference {
-    publisher = "paloaltonetworks"
-    offer     = "vmseries1"
-    sku       = var.vm_series_sku
-    version   = var.vm_series_version
-  }
-  sku {
-    capacity = 1
-    name     = var.vmseries_size
+  os_profile_linux_config {
+    disable_password_authentication = false
   }
   plan {
-    name      = "bundle2"
+    name = var.vm_series_sku
     publisher = "paloaltonetworks"
-    product   = "vmseries1"
-  }
-  storage_profile_os_disk {
-    create_option  = "FromImage"
-    name           = "${var.name_prefix}-vhd-profile"
-    caching        = "ReadWrite"
-    vhd_containers = ["${var.bootstrap-storage-account.primary_blob_endpoint}${var.vhd-container}"]
+    product = "vmseries1"
   }
 }

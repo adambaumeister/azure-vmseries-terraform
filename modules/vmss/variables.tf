@@ -63,7 +63,3 @@ variable "public_backend_pool_id" {
 variable "private_backend_pool_id" {
   description = "The LB pool to associate the private interface with."
 }
-
-variable "resource_group" {
-  description = "The resource group for VM series deployment"
-}

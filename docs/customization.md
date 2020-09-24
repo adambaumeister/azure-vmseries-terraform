@@ -35,7 +35,7 @@ to use *vm-no-bootstrap* in main.tf as below:
 
 ```
 module "vm-series" {
-  source = "./modules/vm-no-bootstrap"
+  source = "./modules/vmss-no-bootstrap"
 
   location = var.location
   name_prefix = var.name_prefix
