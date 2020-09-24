@@ -8,19 +8,19 @@ provider "azurerm" {
 
 # Setup all the networks required for the topology
 module "networks" {
-  source = "./modules/networks"
-  location = var.location
+  source         = "./modules/networks"
+  location       = var.location
   management_ips = var.management_ips
-  name_prefix = var.name_prefix
+  name_prefix    = var.name_prefix
 
   management_vnet_prefix = var.management_vnet_prefix
-  management_subnet = var.management_subnet
+  management_subnet      = var.management_subnet
 
   olb_private_ip = var.olb_private_ip
 
   firewall_vnet_prefix = var.firewall_vnet_prefix
-  private_subnet = var.private_subnet
-  public_subnet = var.public_subnet
+  private_subnet       = var.private_subnet
+  public_subnet        = var.public_subnet
   vm_management_subnet = var.vm_management_subnet
 }
 
@@ -28,14 +28,14 @@ module "networks" {
 module "panorama" {
   source = "./modules/panorama"
 
-  location = var.location
+  location    = var.location
   name_prefix = var.name_prefix
   subnet_mgmt = module.networks.panorama-mgmt-subnet
 
   username = var.username
   password = var.password
 
-  panorama_sku = var.panorama_sku
+  panorama_sku     = var.panorama_sku
   panorama_version = var.panorama_version
 }
 
@@ -43,18 +43,18 @@ module "panorama" {
 module "inbound-lb" {
   source = "./modules/lbs"
 
-  location = var.location
+  location    = var.location
   name_prefix = var.name_prefix
-  rules = var.rules
+  rules       = var.rules
 
 }
 
 # Deploy the outbound load balancer for traffic out of the azure environment
 module "outbound-lb" {
-  source = "./modules/olb"
-  location = var.location
-  name_prefix = var.name_prefix
-  private-ip = var.olb_private_ip
+  source         = "./modules/olb"
+  location       = var.location
+  name_prefix    = var.name_prefix
+  private-ip     = var.olb_private_ip
   backend-subnet = module.networks.subnet-private.id
 }
 
@@ -62,33 +62,33 @@ module "outbound-lb" {
 module "vm-series" {
   source = "./modules/vm"
 
-  location = var.location
+  location    = var.location
   name_prefix = var.name_prefix
-  username = var.username
-  password = var.password
+  username    = var.username
+  password    = var.password
 
-  subnet-mgmt = module.networks.subnet-mgmt
+  subnet-mgmt    = module.networks.subnet-mgmt
   subnet-private = module.networks.subnet-private
-  subnet-public = module.networks.subnet-public
+  subnet-public  = module.networks.subnet-public
 
-  bootstrap-storage-account = module.panorama.bootstrap-storage-account
-  inbound-bootstrap-share-name = module.panorama.inbound-bootstrap-share-name
+  bootstrap-storage-account     = module.panorama.bootstrap-storage-account
+  inbound-bootstrap-share-name  = module.panorama.inbound-bootstrap-share-name
   outbound-bootstrap-share-name = module.panorama.outbound-bootstrap-share-name
 
   depends_on = [module.panorama]
 
-  vhd-container = module.panorama.storage-container-name
+  vhd-container           = module.panorama.storage-container-name
   private_backend_pool_id = module.outbound-lb.backend-pool-id
-  public_backend_pool_id = module.inbound-lb.backend-pool-id
+  public_backend_pool_id  = module.inbound-lb.backend-pool-id
 }
 
 # Create a test VNET
 module "test-host" {
-  source = "./modules/test-vnet"
+  source         = "./modules/test-vnet"
   admin-password = var.password
-  location = var.location
-  name_prefix = var.name_prefix
-  peer-vnet = module.networks.transit-vnet
+  location       = var.location
+  name_prefix    = var.name_prefix
+  peer-vnet      = module.networks.transit-vnet
   route-table-id = module.networks.outbound-route-table
 }
 

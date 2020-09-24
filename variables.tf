@@ -2,18 +2,18 @@
 #   Global Variables   #
 #----------------------#
 variable "location" {
-  type = string
+  type        = string
   description = "The Azure region to use."
-  default = "Australia Central"
+  default     = "Australia Central"
 }
 variable "name_prefix" {
-  type = string
+  type        = string
   description = "A prefix for all naming conventions - used globally"
-  default = "pantf"
+  default     = "pantf"
 }
 
 variable "username" {
-  default = "panadmin"
+  default     = "panadmin"
   description = "Username to use for all systems"
 }
 
@@ -25,7 +25,7 @@ variable "password" {
 #      Networking      #
 #----------------------#
 variable "management_ips" {
-  type = map(any)
+  type        = map(any)
   description = "A list of IP addresses and/or subnets that are permitted to access the out of band Management network."
 }
 
@@ -35,39 +35,39 @@ variable "management_ips" {
 #  Thus to change the VNET addressing you only need to update the relevent _vnet_prefix variable.
 
 variable "management_vnet_prefix" {
-  default = "10.255."
+  default     = "10.255."
   description = "The private prefix used for the management virtual network"
 }
 
 variable "management_subnet" {
-  default = "0.0/24"
+  default     = "0.0/24"
   description = "The private network that terminates all FW and Panorama IP addresses."
 }
 
 variable "firewall_vnet_prefix" {
-  default = "10.110."
+  default     = "10.110."
   description = "The private prefix used for all firewall networks"
 }
 
 variable "vm_management_subnet" {
-  default = "255.0/24"
+  default     = "255.0/24"
   description = "The subnet used for the management NICs on the vm-series"
 }
 
 variable "public_subnet" {
-  default = "129.0/24"
+  default     = "129.0/24"
   description = "The private network that is the external or public side of the VM series firewalls (eth1/1)"
 }
 
 variable "private_subnet" {
-  default = "0.0/24"
+  default     = "0.0/24"
   description = "The private network behind or on the internal side of the VM series firewalls (eth1/2)"
 }
 
 variable "olb_private_ip" {
   # !! This IP MUST fall in the private-subnet network. !!
   description = "The private IP address to assign to the Outgoing Load balancer frontend"
-  default = "10.110.0.21"
+  default     = "10.110.0.21"
 }
 variable "rules" {
   description = "Inbound Load balancer rules. Largely used for testing the environment, these are mapped to PIPs and then the inbound LB."

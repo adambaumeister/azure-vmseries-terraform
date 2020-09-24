@@ -8,7 +8,7 @@ variable "name_prefix" {
 
 variable "vmseries_size" {
   description = "Default size for VM series"
-  default = "Standard_D5_v2"
+  default     = "Standard_D5_v2"
 }
 
 variable "subnet-mgmt" {
@@ -25,7 +25,7 @@ variable "subnet-private" {
 
 variable "username" {
   description = "Username"
-  default = "panadmin"
+  default     = "panadmin"
 }
 
 variable "password" {
