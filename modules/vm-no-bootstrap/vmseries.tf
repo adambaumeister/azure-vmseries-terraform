@@ -86,10 +86,10 @@ resource "azurerm_virtual_machine_scale_set" "inbound-scale-set" {
     create_option  = "FromImage"
     name           = "${var.name_prefix}-vhd-profile"
     caching        = "ReadWrite"
-    vhd_containers = ["${var.bootstrap-storage-account.primary_blob_endpoint}${var.vhd-container}"]
+    vhd_containers = ["${azurerm_storage_account.vhd-storage-account.name}${azurerm_storage_container.vm-sc.name}"]
   }
   plan {
-    name      = "bundle2"
+    name      = var.vm_series_sku
     publisher = "paloaltonetworks"
     product   = "vmseries1"
   }
@@ -164,7 +164,7 @@ resource "azurerm_virtual_machine_scale_set" "outbound-scale-set" {
     name     = var.vmseries_size
   }
   plan {
-    name      = "bundle2"
+    name      = var.vm_series_sku
     publisher = "paloaltonetworks"
     product   = "vmseries1"
   }
