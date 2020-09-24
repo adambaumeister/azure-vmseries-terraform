@@ -57,6 +57,19 @@ resource "azurerm_network_interface" "nic-fw-public" {
 
 }
 
+resource "azurerm_network_interface_backend_address_pool_association" "inbound-pool-assoc" {
+  for_each = var.inbound_lb_backend_pool_ids
+  backend_address_pool_id = each.value
+  ip_configuration_name = azurerm_network_interface.nic-fw-public.ip_configuration[0].name
+  network_interface_id = azurerm_network_interface.nic-fw-public.id
+}
+
+resource "azurerm_network_interface_backend_address_pool_association" "outbound-pool-assoc" {
+  for_each = var.outbound_lb_backend_pool_ids
+  backend_address_pool_id = each.value
+  ip_configuration_name = azurerm_network_interface.nic-fw-private.ip_configuration[0].name
+  network_interface_id = azurerm_network_interface.nic-fw-private.id
+}
 
 resource "azurerm_virtual_machine" "inbound-fw" {
   location = var.resource_group.location

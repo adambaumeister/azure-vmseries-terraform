@@ -39,14 +39,21 @@ module "panorama" {
   panorama_version = var.panorama_version
 }
 
+# Create the vm-series RG outside of the module and pass it in.
+## All the config required for a single VM series Firewall in Azure
+# Base resource group
+resource "azurerm_resource_group" "vmseries" {
+  location = var.location
+  name = "${var.name_prefix}-vmseries-rg"
+}
+
 # Deploy the inbound load balancer for traffic into the azure environment
 module "inbound-lb" {
   source = "../modules/lbs"
 
-  location    = var.location
-  name_prefix = var.name_prefix
-  rules       = var.rules
-
+  location      = var.location
+  name_prefix   = var.name_prefix
+  rules         = var.rules
 }
 
 # Deploy the outbound load balancer for traffic out of the azure environment
@@ -58,22 +65,15 @@ module "outbound-lb" {
   backend-subnet = module.networks.subnet-private.id
 }
 
-# Create the vm-series RG outside of the module and pass it in.
-## All the config required for a single VM series Firewall in Azure
-# Base resource group
-resource "azurerm_resource_group" "vmseries" {
-  location = var.location
-  name = "${var.name_prefix}-vmseries-rg"
-}
-
-# Create the inbound and outbound VM Scale sets
-module "vm-series" {
+# Create the inbound VM Series Firewalls
+module "inbound-vm-series" {
   source = "../modules/vm"
+  count = 2
 
   resource_group = azurerm_resource_group.vmseries
 
   location    = var.location
-  name_prefix = var.name_prefix
+  name_prefix = "${var.name_prefix}-ib-${count.index}"
   username    = var.username
   password    = var.password
 
@@ -87,21 +87,36 @@ module "vm-series" {
 
   depends_on = [module.panorama]
 
-  vhd-container           = module.panorama.storage-container-name
-  private_backend_pool_id = module.outbound-lb.backend-pool-id
-  public_backend_pool_id  = module.inbound-lb.backend-pool-id
+  vhd-container               = module.panorama.storage-container-name
+  inbound_lb_backend_pool_ids    = toset([module.inbound-lb.backend-pool-id])
 }
 
-# Create a test VNET
-module "test-host" {
-  source         = "../modules/test-vnet"
-  admin-password = var.password
-  location       = var.location
-  name_prefix    = var.name_prefix
-  peer-vnet      = module.networks.transit-vnet
-  route-table-id = module.networks.outbound-route-table
-}
+# Create the outbound VM Series Firewalls
+module "outbound-vm-series" {
+  source = "../modules/vm"
+  count = 2
 
+  resource_group = azurerm_resource_group.vmseries
+
+  location    = var.location
+  name_prefix = "${var.name_prefix}-ob-${count.index}"
+  username    = var.username
+  password    = var.password
+
+  subnet-mgmt    = module.networks.subnet-mgmt
+  subnet-private = module.networks.subnet-private
+  subnet-public  = module.networks.subnet-public
+
+  bootstrap-storage-account     = module.panorama.bootstrap-storage-account
+  inbound-bootstrap-share-name  = module.panorama.inbound-bootstrap-share-name
+  outbound-bootstrap-share-name = module.panorama.outbound-bootstrap-share-name
+
+  depends_on = [module.panorama]
+
+  vhd-container               = module.panorama.storage-container-name
+  outbound_lb_backend_pool_ids    = toset([module.outbound-lb.backend-pool-id])
+
+}
 
 output "PANORAMA-IP" {
   value = module.panorama.panorama-publicip
