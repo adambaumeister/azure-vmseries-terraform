@@ -61,7 +61,7 @@ module "outbound-lb" {
 
 # Create the inbound and outbound VM Scale sets
 module "vm-series" {
-  source = "modules/vmss"
+  source = "./modules/vmss"
 
   location    = var.location
   name_prefix = var.name_prefix
