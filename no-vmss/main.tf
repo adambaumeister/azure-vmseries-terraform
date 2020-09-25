@@ -8,7 +8,7 @@ provider "azurerm" {
 
 # Setup all the networks required for the topology
 module "networks" {
-  source         = "./modules/networks"
+  source         = "../modules/networks"
   location       = var.location
   management_ips = var.management_ips
   name_prefix    = var.name_prefix
@@ -26,7 +26,7 @@ module "networks" {
 
 # Create a panorama instance
 module "panorama" {
-  source = "./modules/panorama"
+  source = "../modules/panorama"
 
   location    = var.location
   name_prefix = var.name_prefix
@@ -39,29 +39,37 @@ module "panorama" {
   panorama_version = var.panorama_version
 }
 
+# Create the vm-series RG outside of the module and pass it in.
+## All the config required for a single VM series Firewall in Azure
+# Base resource group
+resource "azurerm_resource_group" "vmseries" {
+  location = var.location
+  name     = "${var.name_prefix}-vmseries-rg"
+}
+
 # Deploy the inbound load balancer for traffic into the azure environment
 module "inbound-lb" {
-  source = "./modules/lbs"
+  source = "../modules/lbs"
 
   location    = var.location
   name_prefix = var.name_prefix
   rules       = var.rules
-
 }
 
 # Deploy the outbound load balancer for traffic out of the azure environment
 module "outbound-lb" {
-  source         = "./modules/olb"
+  source         = "../modules/olb"
   location       = var.location
   name_prefix    = var.name_prefix
   private-ip     = var.olb_private_ip
   backend-subnet = module.networks.subnet-private.id
 }
 
+# Create the inbound VM Series Firewalls
+module "inbound-vm-series" {
+  source = "../modules/vm"
 
-# Create the inbound and outbound VM Scale sets
-module "vm-series" {
-  source = "./modules/vmss"
+  resource_group = azurerm_resource_group.vmseries
 
   location    = var.location
   name_prefix = var.name_prefix
@@ -78,19 +86,11 @@ module "vm-series" {
 
   depends_on = [module.panorama]
 
-  vhd-container           = module.panorama.storage-container-name
-  private_backend_pool_id = module.outbound-lb.backend-pool-id
-  public_backend_pool_id  = module.inbound-lb.backend-pool-id
-}
+  vhd-container               = module.panorama.storage-container-name
+  inbound_lb_backend_pool_id  = module.inbound-lb.backend-pool-id
+  outbound_lb_backend_pool_id = module.outbound-lb.backend-pool-id
 
-# Create a test VNET
-module "test-host" {
-  source         = "./modules/test-vnet"
-  admin-password = var.password
-  location       = var.location
-  name_prefix    = var.name_prefix
-  peer-vnet      = module.networks.transit-vnet
-  route-table-id = module.networks.outbound-route-table
+  vm_count = var.vm_series_count
 }
 
 

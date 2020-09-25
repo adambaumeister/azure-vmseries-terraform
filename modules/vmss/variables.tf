@@ -57,18 +57,9 @@ variable "vm_series_count" {
 variable "vhd-container" {
 }
 
-variable "resource_group" {
-  description = "The resource group for VM series deployment"
+variable "public_backend_pool_id" {
+  description = "The LB pool to associate the public interface with."
 }
-
-variable "inbound_lb_backend_pool_id" {
-  default = ""
-}
-
-variable "outbound_lb_backend_pool_id" {
-  default = ""
-}
-
-variable "vm_count" {
-  default = 2
+variable "private_backend_pool_id" {
+  description = "The LB pool to associate the private interface with."
 }

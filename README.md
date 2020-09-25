@@ -1,6 +1,6 @@
 <div align="center">
-    <img src="https://www.terraform.io/assets/images/og-image-8b3e4f7d.png" alt="TF Logo" height="100px">
-    <img src="https://raw.githubusercontent.com/adambaumeister/azure-vmseries-terraform/master/images/azure.png" alt="Azure Logo" height="100px">
+    <img src="https://www.terraform.io/assets/images/og-image-8b3e4f7d.png" alt="TF Logo" height="50px">
+    <img src="https://raw.githubusercontent.com/adambaumeister/azure-vmseries-terraform/master/images/azure.png" alt="Azure Logo" height="50px">
 </div>
 
 <div align="center">
