@@ -61,10 +61,14 @@ variable "resource_group" {
   description = "The resource group for VM series deployment"
 }
 
-variable "inbound_lb_backend_pool_ids" {
-  default = {}
+variable "inbound_lb_backend_pool_id" {
+  default = ""
 }
 
-variable "outbound_lb_backend_pool_ids" {
-  default = {}
+variable "outbound_lb_backend_pool_id" {
+  default = ""
+}
+
+variable "vm_count" {
+  default = 2
 }

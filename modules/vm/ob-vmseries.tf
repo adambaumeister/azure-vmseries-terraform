@@ -1,88 +1,88 @@
 
-resource "azurerm_availability_set" "ib-az" {
+resource "azurerm_availability_set" "ob-az" {
   location = var.location
-  name = "${var.name_prefix}-ib-vm-az"
+  name = "${var.name_prefix}-ob-vm-az"
   resource_group_name = var.resource_group.name
 }
 
 # Create a public IP for management
-resource "azurerm_public_ip" "ib-pip-fw-mgmt" {
+resource "azurerm_public_ip" "ob-pip-fw-mgmt" {
   count               = var.vm_count
   allocation_method   = "Static"
   location            = var.resource_group.location
-  name                = "${var.name_prefix}--ib-fw-pip-${count.index}"
+  name                = "${var.name_prefix}--ob-fw-pip-${count.index}"
   sku                 = "standard"
   resource_group_name = var.resource_group.name
 }
 # Create another PIP for the outside interface so we can talk outbound
-resource "azurerm_public_ip" "ib-pip-fw-public" {
+resource "azurerm_public_ip" "ob-pip-fw-public" {
   count               = var.vm_count
   allocation_method   = "Static"
   location            = var.resource_group.location
-  name                = "${var.name_prefix}-ib-outside-fw-pip-${count.index}"
+  name                = "${var.name_prefix}-ob-outside-fw-pip-${count.index}"
   sku                 = "standard"
   resource_group_name = var.resource_group.name
 }
 
-resource "azurerm_network_interface" "ib-nic-fw-mgmt" {
+resource "azurerm_network_interface" "ob-nic-fw-mgmt" {
   count               = var.vm_count
   location            = var.resource_group.location
-  name                = "${var.name_prefix}-ib-nic-fw-mgmt-${count.index}"
+  name                = "${var.name_prefix}-ob-nic-fw-mgmt-${count.index}"
   resource_group_name = var.resource_group.name
   ip_configuration {
     subnet_id                     = var.subnet-mgmt.id
-    name                          = "${var.name_prefix}-ib-fw-ip-mgmt"
+    name                          = "${var.name_prefix}-ob-fw-ip-mgmt"
     private_ip_address_allocation = "dynamic"
-    public_ip_address_id          = azurerm_public_ip.ib-pip-fw-mgmt[count.index].id
+    public_ip_address_id          = azurerm_public_ip.ob-pip-fw-mgmt[count.index].id
   }
 }
 
-resource "azurerm_network_interface" "ib-nic-fw-private" {
+resource "azurerm_network_interface" "ob-nic-fw-private" {
   count               = var.vm_count
   location            = var.resource_group.location
-  name                = "${var.name_prefix}-ib-nic-fw-private-${count.index}"
+  name                = "${var.name_prefix}-ob-nic-fw-private-${count.index}"
   resource_group_name = var.resource_group.name
   ip_configuration {
     subnet_id                     = var.subnet-private.id
-    name                          = "${var.name_prefix}-ib-fw-ip-inside-${count.index}"
+    name                          = "${var.name_prefix}-ob-fw-ip-inside-${count.index}"
     private_ip_address_allocation = "dynamic"
     //private_ip_address = "172.16.1.10"
   }
   enable_ip_forwarding = true
 }
 
-resource "azurerm_network_interface" "ib-nic-fw-public" {
+resource "azurerm_network_interface" "ob-nic-fw-public" {
   count               = var.vm_count
   location            = var.resource_group.location
-  name                = "${var.name_prefix}-ib-nic-fw-public-${count.index}"
+  name                = "${var.name_prefix}-ob-nic-fw-public-${count.index}"
   resource_group_name = var.resource_group.name
   ip_configuration {
     subnet_id                     = var.subnet-public.id
-    name                          = "${var.name_prefix}-ib-fw-ip-outside-${count.index}"
+    name                          = "${var.name_prefix}-ob-fw-ip-outside-${count.index}"
     private_ip_address_allocation = "dynamic"
     //private_ip_address = "172.16.2.10"
-    public_ip_address_id = azurerm_public_ip.ib-pip-fw-public[count.index].id
+    public_ip_address_id = azurerm_public_ip.ob-pip-fw-public[count.index].id
 
   }
   enable_ip_forwarding = true
 
 }
 
-resource "azurerm_network_interface_backend_address_pool_association" "inbound-pool-assoc" {
+resource "azurerm_network_interface_backend_address_pool_association" "outbound-pool-assoc" {
   count                   = var.vm_count
-  backend_address_pool_id = var.inbound_lb_backend_pool_id
-  ip_configuration_name   = azurerm_network_interface.ib-nic-fw-public[count.index].ip_configuration[0].name
-  network_interface_id    = azurerm_network_interface.ib-nic-fw-public[count.index].id
+  backend_address_pool_id = var.outbound_lb_backend_pool_id
+  ip_configuration_name   = azurerm_network_interface.ob-nic-fw-private[count.index].ip_configuration[0].name
+  network_interface_id    = azurerm_network_interface.ob-nic-fw-private[count.index].id
 }
 
-resource "azurerm_virtual_machine" "inbound-fw" {
+resource "azurerm_virtual_machine" "outbound-fw" {
   count    = var.vm_count
   location = var.resource_group.location
-  name     = "${var.name_prefix}-ib-fw-${count.index}"
+  name     = "${var.name_prefix}-ob-fw-${count.index}"
   network_interface_ids = [
-    azurerm_network_interface.ib-nic-fw-mgmt[count.index].id,
-    azurerm_network_interface.ib-nic-fw-public[count.index].id,
-    azurerm_network_interface.ib-nic-fw-private[count.index].id
+    azurerm_network_interface.ob-nic-fw-mgmt[count.index].id,
+    azurerm_network_interface.ob-nic-fw-public[count.index].id,
+    azurerm_network_interface.ob-nic-fw-private[count.index].id
   ]
   resource_group_name = var.resource_group.name
   vm_size             = var.vmseries_size
@@ -95,23 +95,23 @@ resource "azurerm_virtual_machine" "inbound-fw" {
 
   storage_os_disk {
     create_option = "FromImage"
-    name          = "${var.name_prefix}-ib-vhd-fw-${count.index}"
+    name          = "${var.name_prefix}-vhd-ob-fw-${count.index}"
     caching       = "ReadWrite"
-    vhd_uri       = "${var.bootstrap-storage-account.primary_blob_endpoint}vhds/${var.name_prefix}-ib-fw-${count.index}.vhd"
+    vhd_uri       = "${var.bootstrap-storage-account.primary_blob_endpoint}vhds/${var.name_prefix}-ob-fw-${count.index}.vhd"
   }
 
 
-  primary_network_interface_id = azurerm_network_interface.ib-nic-fw-mgmt[count.index].id
+  primary_network_interface_id = azurerm_network_interface.ob-nic-fw-mgmt[count.index].id
   os_profile {
     admin_username = var.username
-    computer_name  = "${var.name_prefix}-fw-${count.index}"
+    computer_name  = "${var.name_prefix}-ob-fw-${count.index}"
     admin_password = var.password
     custom_data = join(
       ",",
       [
         "storage-account=${var.bootstrap-storage-account.name}",
         "access-key=${var.bootstrap-storage-account.primary_access_key}",
-        "file-share=${var.inbound-bootstrap-share-name}",
+        "file-share=${var.outbound-bootstrap-share-name}",
         "share-directory=None"
       ]
     )
@@ -124,5 +124,5 @@ resource "azurerm_virtual_machine" "inbound-fw" {
     publisher = "paloaltonetworks"
     product   = "vmseries1"
   }
-  availability_set_id = azurerm_availability_set.ib-az.id
+  availability_set_id = azurerm_availability_set.ob-az.id
 }

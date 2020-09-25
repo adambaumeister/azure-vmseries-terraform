@@ -44,16 +44,16 @@ module "panorama" {
 # Base resource group
 resource "azurerm_resource_group" "vmseries" {
   location = var.location
-  name = "${var.name_prefix}-vmseries-rg"
+  name     = "${var.name_prefix}-vmseries-rg"
 }
 
 # Deploy the inbound load balancer for traffic into the azure environment
 module "inbound-lb" {
   source = "../modules/lbs"
 
-  location      = var.location
-  name_prefix   = var.name_prefix
-  rules         = var.rules
+  location    = var.location
+  name_prefix = var.name_prefix
+  rules       = var.rules
 }
 
 # Deploy the outbound load balancer for traffic out of the azure environment
@@ -68,12 +68,11 @@ module "outbound-lb" {
 # Create the inbound VM Series Firewalls
 module "inbound-vm-series" {
   source = "../modules/vm"
-  count = 2
 
   resource_group = azurerm_resource_group.vmseries
 
   location    = var.location
-  name_prefix = "${var.name_prefix}-ib-${count.index}"
+  name_prefix = var.name_prefix
   username    = var.username
   password    = var.password
 
@@ -88,35 +87,12 @@ module "inbound-vm-series" {
   depends_on = [module.panorama]
 
   vhd-container               = module.panorama.storage-container-name
-  inbound_lb_backend_pool_ids    = toset([module.inbound-lb.backend-pool-id])
+  inbound_lb_backend_pool_id  = module.inbound-lb.backend-pool-id
+  outbound_lb_backend_pool_id = module.outbound-lb.backend-pool-id
+
+  vm_count = var.vm_series_count
 }
 
-# Create the outbound VM Series Firewalls
-module "outbound-vm-series" {
-  source = "../modules/vm"
-  count = 2
-
-  resource_group = azurerm_resource_group.vmseries
-
-  location    = var.location
-  name_prefix = "${var.name_prefix}-ob-${count.index}"
-  username    = var.username
-  password    = var.password
-
-  subnet-mgmt    = module.networks.subnet-mgmt
-  subnet-private = module.networks.subnet-private
-  subnet-public  = module.networks.subnet-public
-
-  bootstrap-storage-account     = module.panorama.bootstrap-storage-account
-  inbound-bootstrap-share-name  = module.panorama.inbound-bootstrap-share-name
-  outbound-bootstrap-share-name = module.panorama.outbound-bootstrap-share-name
-
-  depends_on = [module.panorama]
-
-  vhd-container               = module.panorama.storage-container-name
-  outbound_lb_backend_pool_ids    = toset([module.outbound-lb.backend-pool-id])
-
-}
 
 output "PANORAMA-IP" {
   value = module.panorama.panorama-publicip

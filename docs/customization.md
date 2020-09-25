@@ -65,3 +65,16 @@ data "external" "panorama_bootstrap" {
 }
 ```
 This will still deploy the bootstrap and VHD storage requirements, but it won't add any of the bootstrap files.
+
+# Deploying Without ScaleSets
+In some cases you may want to deploy an environment that uses dedicated virtual machines and not VMSS. 
+
+A second terraform deployment is provided under the *no-vmss* directory. This deployment is otherwise identical to the 
+normal deployment model using VMSS. 
+
+To use it, simply change directory to *no-vmss* before running terraform as normal.
+```bash
+terraform init
+terraform apply --var-file=example.tfvars
+```
+
