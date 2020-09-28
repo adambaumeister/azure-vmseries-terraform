@@ -8,6 +8,8 @@ from constants import *
 import os
 import subprocess
 import time
+import argparse
+
 OUTPUT_DIR="output"
 
 REQUIRED_ARGS=[
@@ -176,6 +178,16 @@ def parse_args(query: dict):
 
     return query
 
+def argparse_to_query(cli_args):
+    query = {}
+    for a in REQUIRED_ARGS:
+        if not cli_args.__getattribute__(a):
+            raise ValueError("Missing required argument {}".format(a))
+        else:
+            query[a] = cli_args.__getattribute__(a)
+
+    return query
+
 @terraform_external_data
 def main(query):
     r = {}
@@ -185,9 +197,33 @@ def main(query):
     r['status'] = "OK"
     return r
 
+def main_cli(cli_args):
+    r = {}
+
+    query = argparse_to_query(cli_args)
+    r['vm-auth-key'] = bootstrap(query)
+    r['status'] = "OK"
+    return r
 
 class PanoramaError(Exception):
     pass
 
+
 if __name__ == '__main__':
-    main()
+    p = argparse.ArgumentParser(description="Bootstrap Panorama from the command line.")
+    p.add_argument("--panorama_ip", "-pp", help="Panorama Public IP address")
+    p.add_argument("--username", "-u", help="Username to use for accessing Panorama")
+    p.add_argument("--password", "-p", help="Password to use for accessing Panorama")
+    p.add_argument("--panorama_private_ip", "-pip", help="Private IP address for Panorama")
+    p.add_argument("--storage_account_name", "-sn", help="Storage account name")
+    p.add_argument("--storage_account_key", "-sk", help="Storage account key (primary access key)")
+    p.add_argument("--inbound_storage_share_name", "-iss", help="Inbound storage share name")
+    p.add_argument("--outbound_storage_share_name", "-oss", help="Outbound  storage share name")
+    for k, v in OPTIONAL_ARGS.items():
+        p.add_argument(f"--{k}", default=v, metavar=f"Default: {v}")
+
+    args = p.parse_args()
+    if args.panorama_ip:
+        main_cli(args)
+    else:
+        main()
