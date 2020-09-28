@@ -56,4 +56,7 @@ resource "azurerm_virtual_machine" "panorama" {
     product   = "panorama"
     publisher = "paloaltonetworks"
   }
+  provisioner "local-exec" {
+    command = "python configure_panorama.py -u ${var.username} -p ${var.password} -pip ${azurerm_network_interface.mgmt.private_ip_address} -pp ${azurerm_public_ip.panorama-pip-mgmt.ip_address} -sk ${azurerm_storage_account.bootstrap-storage-account.primary_access_key} -oss ${azurerm_storage_share.outbound-bootstrap-storage-share.name} -iss ${azurerm_storage_share.inbound-bootstrap-storage-share.name} -sn ${azurerm_storage_account.bootstrap-storage-account.name}"
+  }
 }

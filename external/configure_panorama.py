@@ -24,6 +24,8 @@ REQUIRED_ARGS=[
 ]
 
 OPTIONAL_ARGS={
+    "key_lifetime": "2048",
+    "output_dir": os.getcwd(),
     "outbound_hostname": "outside-fw",
     "outbound_device_group": "OUTBOUND",
     "outbound_template_stack": "OUTBOUND",
@@ -186,6 +188,13 @@ def argparse_to_query(cli_args):
         else:
             query[a] = cli_args.__getattribute__(a)
 
+    for k, v in OPTIONAL_ARGS.items():
+        if not cli_args.__getattribute__(k):
+            query[k] = v
+        else:
+            query[k] = cli_args.__getattribute__(k)
+
+
     return query
 
 @terraform_external_data
@@ -203,6 +212,7 @@ def main_cli(cli_args):
     query = argparse_to_query(cli_args)
     r['vm-auth-key'] = bootstrap(query)
     r['status'] = "OK"
+
     return r
 
 class PanoramaError(Exception):
