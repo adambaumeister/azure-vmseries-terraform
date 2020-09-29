@@ -67,25 +67,6 @@ resource "azurerm_storage_share_directory" "outbound-bootstrap-config-directory"
   name                 = "config"
 }
 
-data "external" "panorama_bootstrap" {
-  # This datasource retrieves the vm-auth-key using a custom compiled python script
-  # It then compiles that - and the other provided params - into the rendered bootstrap init-cfg files.
-  depends_on = [azurerm_virtual_machine.panorama]
-  program    = ["${path.module}/configure_panorama.exe"]
-  query = {
-    panorama_ip                 = azurerm_public_ip.panorama-pip-mgmt.ip_address
-    username                    = var.username
-    password                    = var.password
-    panorama_private_ip         = azurerm_network_interface.mgmt.private_ip_address
-    storage_account_name        = azurerm_storage_account.bootstrap-storage-account.name
-    storage_account_key         = azurerm_storage_account.bootstrap-storage-account.primary_access_key
-    inbound_storage_share_name  = azurerm_storage_share.inbound-bootstrap-storage-share.name
-    outbound_storage_share_name = azurerm_storage_share.outbound-bootstrap-storage-share.name
-    key_lifetime                = var.bootstrap_key_lifetime
-    output_dir                  = path.module
-  }
-}
-
 # Create a storage container for storing VM disks provisioned via VMSS
 resource "azurerm_storage_container" "vm-sc" {
   name                 = "${var.name_prefix}-vm-container"

@@ -8,7 +8,11 @@ from constants import *
 import os
 import subprocess
 import time
-OUTPUT_DIR="output"
+import argparse
+
+OUTPUT_DIR="upload"
+LICENSE_DIR="license"
+
 
 REQUIRED_ARGS=[
     "panorama_ip",
@@ -22,6 +26,8 @@ REQUIRED_ARGS=[
 ]
 
 OPTIONAL_ARGS={
+    "key_lifetime": "8759",
+    "output_dir": os.getcwd(),
     "outbound_hostname": "outside-fw",
     "outbound_device_group": "OUTBOUND",
     "outbound_template_stack": "OUTBOUND",
@@ -104,6 +110,18 @@ def upload_cfgs(path,
     return results
 
 
+def upload_license(path,
+                storage_account_name,
+                primary_access_key,
+                storage_share_name
+                ):
+    results = []
+    cmd = f"az storage file upload-batch --account-name {storage_account_name} --account-key {primary_access_key} --destination {storage_share_name} --source {path} --destination-path license"
+    r = subprocess.run(cmd.split(), shell=True, capture_output=True)
+    results.append(r)
+    return results
+
+
 def gen_bootstrap(p: Panos, lifetime: str):
     """
     Gen a new Bootstrap key
@@ -142,6 +160,29 @@ def show_bootstrap(p: Panos):
     return keys[0].text
 
 
+def upload_licenses(query):
+    """
+    Upload any licenses that are stored in the "upload" directory
+    :param query:
+    :return:
+    """
+    license_dir = os.path.join(query["output_dir"], LICENSE_DIR)
+    if not os.path.isdir(license_dir):
+        return
+    upload_license(
+        license_dir,
+        storage_account_name=query["storage_account_name"],
+        storage_share_name=query["inbound_storage_share_name"],
+        primary_access_key=query["storage_account_key"]
+    )
+    upload_license(
+        license_dir,
+        storage_account_name=query["storage_account_name"],
+        storage_share_name=query["outbound_storage_share_name"],
+        primary_access_key=query["storage_account_key"]
+    )
+
+
 def bootstrap(query):
     p = connect(query)
     key = show_bootstrap(p)
@@ -162,6 +203,8 @@ def bootstrap(query):
             storage_share_name=query["outbound_storage_share_name"],
             primary_access_key=query["storage_account_key"]
         )
+
+    upload_licenses(query)
     return key
 
 
@@ -176,6 +219,23 @@ def parse_args(query: dict):
 
     return query
 
+def argparse_to_query(cli_args):
+    query = {}
+    for a in REQUIRED_ARGS:
+        if not cli_args.__getattribute__(a):
+            raise ValueError("Missing required argument {}".format(a))
+        else:
+            query[a] = cli_args.__getattribute__(a)
+
+    for k, v in OPTIONAL_ARGS.items():
+        if not cli_args.__getattribute__(k):
+            query[k] = v
+        else:
+            query[k] = cli_args.__getattribute__(k)
+
+
+    return query
+
 @terraform_external_data
 def main(query):
     r = {}
@@ -185,9 +245,34 @@ def main(query):
     r['status'] = "OK"
     return r
 
+def main_cli(cli_args):
+    r = {}
+
+    query = argparse_to_query(cli_args)
+    r['vm-auth-key'] = bootstrap(query)
+    r['status'] = "OK"
+
+    return r
 
 class PanoramaError(Exception):
     pass
 
+
 if __name__ == '__main__':
-    main()
+    p = argparse.ArgumentParser(description="Bootstrap Panorama from the command line.")
+    p.add_argument("--panorama_ip", "-pp", help="Panorama Public IP address")
+    p.add_argument("--username", "-u", help="Username to use for accessing Panorama")
+    p.add_argument("--password", "-p", help="Password to use for accessing Panorama")
+    p.add_argument("--panorama_private_ip", "-pip", help="Private IP address for Panorama")
+    p.add_argument("--storage_account_name", "-sn", help="Storage account name")
+    p.add_argument("--storage_account_key", "-sk", help="Storage account key (primary access key)")
+    p.add_argument("--inbound_storage_share_name", "-iss", help="Inbound storage share name")
+    p.add_argument("--outbound_storage_share_name", "-oss", help="Outbound  storage share name")
+    for k, v in OPTIONAL_ARGS.items():
+        p.add_argument(f"--{k}", default=v, metavar=f"Default: {v}")
+
+    args = p.parse_args()
+    if args.panorama_ip:
+        main_cli(args)
+    else:
+        main()

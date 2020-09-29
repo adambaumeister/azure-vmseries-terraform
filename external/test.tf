@@ -25,7 +25,7 @@ variable "management_ips" {
   type        = map(any)
   description = "A list of IP addresses and/or subnets that are permitted to access the out of band Management network"
   default = {
-    "121.45.210.83" : 100
+    "203.214.46.154" : 100
   }
 }
 
@@ -41,7 +41,7 @@ module "networks" {
   location       = var.location
   management_ips = var.management_ips
   name_prefix    = var.name_prefix
-  olb-ip         = var.olb-private-ip
+  olb_private_ip = var.olb-private-ip
 }
 # Create a panorama instance
 module "panorama" {
@@ -49,24 +49,18 @@ module "panorama" {
 
   location    = var.location
   name_prefix = var.name_prefix
-  subnet-mgmt = module.networks.panorama-mgmt-subnet
   password    = "NicePassword!"
+  subnet_mgmt = module.networks.panorama-mgmt-subnet
 }
 
-data "external" "panorama_bootstrap" {
-  depends_on = [module.panorama]
-  program    = ["python", "${path.module}/configure_panorama.py"]
-  query = {
-    panorama_ip                 = module.panorama.panorama-publicip
-    username                    = "panadmin"
-    password                    = "NicePassword!"
-    storage_account_name        = module.panorama.bootstrap-storage-account.name
-    storage_account_key         = module.panorama.bootstrap-storage-account.primary_access_key
-    inbound_storage_share_name  = module.panorama.inbound-bootstrap-share-name
-    outbound_storage_share_name = module.panorama.outbound-bootstrap-share-name
-    key_lifetime                = var.key_lifetime
-  }
+output "sak" {
+  value = "-sn ${module.panorama.bootstrap-storage-account.name} -sk ${module.panorama.bootstrap-storage-account.primary_access_key}"
 }
-output "vm-auth-key" {
-  value = data.external.panorama_bootstrap.result.vm-auth-key
+
+output "share-names" {
+  value = "-iss ${module.panorama.inbound-bootstrap-share-name} -oss ${module.panorama.outbound-bootstrap-share-name}"
+}
+
+output "panorama-pp" {
+  value = "-pp ${module.panorama.panorama-publicip}"
 }
