@@ -1,4 +1,4 @@
-from configure_panorama import connect, gen_bootstrap, show_bootstrap, bootstrap, gen_inbound_init_cfgs, parse_args, upload_cfgs
+from configure_panorama import connect, gen_bootstrap, show_bootstrap, bootstrap, gen_inbound_init_cfgs, parse_args, upload_cfgs, upload_licenses
 import os
 
 if __name__ == '__main__':
@@ -28,4 +28,5 @@ if __name__ == '__main__':
     }
     query = parse_args(query)
     r = gen_inbound_init_cfgs(query, "012345678910")
+    r = upload_licenses(query)
 
