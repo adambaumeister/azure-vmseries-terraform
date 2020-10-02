@@ -1,7 +1,16 @@
-from configure_panorama import connect, gen_bootstrap, show_bootstrap, bootstrap, gen_inbound_init_cfgs, parse_args, upload_cfgs, upload_licenses
+from configure_panorama import (
+    connect,
+    gen_bootstrap,
+    show_bootstrap,
+    bootstrap,
+    gen_inbound_init_cfgs,
+    parse_args,
+    upload_cfgs,
+    upload_licenses,
+)
 import os
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """
     Run a set of integration tests if we're called from the command line
     You must configure environment varibles that map to a real instance of Panorama.
@@ -24,9 +33,8 @@ if __name__ == '__main__':
         "inbound_storage_share_name": "test-ib",
         "outbound_storage_share_name": "test-ob",
         "key_lifetime": "8760",
-        "output_dir": os.getcwd()
+        "output_dir": os.getcwd(),
     }
     query = parse_args(query)
     r = gen_inbound_init_cfgs(query, "012345678910")
     r = upload_licenses(query)
-

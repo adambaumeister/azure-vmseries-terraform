@@ -1,5 +1,6 @@
-
-def init_cfg(hostname, vm_auth_key, device_group_name, template_name, panorama_ip, dns_ip):
+def init_cfg(
+    hostname, vm_auth_key, device_group_name, template_name, panorama_ip, dns_ip
+):
     r = f"""
 ip-address=
 default-gateway=
