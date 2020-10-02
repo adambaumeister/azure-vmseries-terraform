@@ -105,7 +105,13 @@ def upload_cfgs(path,
                 ):
     results = []
     cmd = f"az storage file upload --account-name {storage_account_name} --account-key {primary_access_key} --share-name {storage_share_name} --source {path} --path config/init-cfg.txt"
-    r = subprocess.run(cmd.split(), shell=True, capture_output=True)
+    r = subprocess.run(
+        cmd.split(),
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=True,
+    )
     results.append(r)
     return results
 
@@ -117,7 +123,9 @@ def upload_license(path,
                 ):
     results = []
     cmd = f"az storage file upload-batch --account-name {storage_account_name} --account-key {primary_access_key} --destination {storage_share_name} --source {path} --destination-path license"
-    r = subprocess.run(cmd.split(), shell=True, capture_output=True)
+    r = subprocess.run(
+        cmd.split(), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
     results.append(r)
     return results
 
