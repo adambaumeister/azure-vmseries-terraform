@@ -3,7 +3,7 @@
 
 resource "azurerm_resource_group" "rg-lb" {
   location = var.location
-  name     = "${var.name_prefix}-lb-rg"
+  name     = "${var.name_prefix}${var.sep}${var.name_rg}"
 }
 
 resource "azurerm_public_ip" "lb-fip-pip" {
@@ -17,7 +17,7 @@ resource "azurerm_public_ip" "lb-fip-pip" {
 
 resource "azurerm_lb" "lb" {
   location            = var.location
-  name                = "${var.name_prefix}-lb"
+  name                = "${var.name_prefix}${var.sep}${var.name_lb}"
   resource_group_name = azurerm_resource_group.rg-lb.name
   sku                 = "standard"
   dynamic "frontend_ip_configuration" {
@@ -31,13 +31,13 @@ resource "azurerm_lb" "lb" {
 
 resource "azurerm_lb_backend_address_pool" "lb-backend" {
   loadbalancer_id     = azurerm_lb.lb.id
-  name                = "${var.name_prefix}-lb-backend"
+  name                = "${var.name_prefix}${var.sep}${var.name_backend}"
   resource_group_name = azurerm_resource_group.rg-lb.name
 }
 
 resource "azurerm_lb_probe" "probe" {
   loadbalancer_id     = azurerm_lb.lb.id
-  name                = "${var.name_prefix}-lb-probe-80"
+  name                = "${var.name_prefix}${var.sep}${var.name_probe}"
   port                = 80
   resource_group_name = azurerm_resource_group.rg-lb.name
 
@@ -49,7 +49,7 @@ resource "azurerm_lb_rule" "lb-rules" {
   frontend_ip_configuration_name = "${var.name_prefix}-${each.value.port}-fip"
   frontend_port                  = each.value.port
   loadbalancer_id                = azurerm_lb.lb.id
-  name                           = "${each.value.name}-lbrule"
+  name                           = "${each.value.name}${var.sep}${var.name_lbrule}"
   protocol                       = "Tcp"
   resource_group_name            = azurerm_resource_group.rg-lb.name
   enable_floating_ip             = true

@@ -47,3 +47,62 @@ variable "olb_private_ip" {
 }
 
 
+#  ---   #
+# Naming #
+#  ---   #
+
+# Separator
+variable "sep" {
+  default = "-"
+}
+
+variable "name_vnet_panorama_mgmt" {
+  default = "vnet-panorama-mgmt"
+}
+
+variable "name_rg" {
+  default = "vnet-panorama-mgmt"
+}
+
+variable "name_panorama_sg" {
+  default = "sg-panorama-mgmt"
+}
+
+variable "name_panorama_subnet_mgmt" {
+  default = "net-panorama-mgmt"
+}
+
+variable "name_vnet_vmseries" {
+  default = "vnet-vmseries"
+}
+
+variable "name_subnet_mgmt" {
+  default = "net-vmseries-mgmt"
+}
+
+variable "name_sg_mgmt" {
+  default = "sg-vmmgmt"
+}
+
+variable "name_subnet_inside" {
+  default = "net-inside"
+}
+
+variable "name_sg_allowall" {
+  default = "sg-allowall"
+}
+
+variable "name_subnet-outside" {
+  default = "net-outside"
+}
+
+variable "name_udr_inside" {
+  default = "udr-inside"
+}
+
+variable "name_panorama_fw_peer" {
+  default = "panorama-fw-peer"
+}
+variable "name_fw_panorama_peer" {
+  default = "fw-panorama-peer"
+}
