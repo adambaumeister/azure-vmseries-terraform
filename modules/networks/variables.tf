@@ -92,7 +92,7 @@ variable "name_sg_allowall" {
   default = "sg-allowall"
 }
 
-variable "name_subnet-outside" {
+variable "name_subnet_outside" {
   default = "net-outside"
 }
 
@@ -103,6 +103,39 @@ variable "name_udr_inside" {
 variable "name_panorama_fw_peer" {
   default = "panorama-fw-peer"
 }
+
 variable "name_fw_panorama_peer" {
   default = "fw-panorama-peer"
+}
+
+variable "name_inter_vnet_rule" {
+  default = "inter-vnet-rule"
+}
+
+variable "name_vmseries_allowall_outbound" {
+  default = "vmseries-allowall-outbound"
+}
+
+variable "name_vmseries_mgmt_inbound" {
+  default = "vmseries-mgmt-inbound"
+}
+
+variable "name_panorama_allowall_outbound" {
+  default = "panorama-allowall-outbound"
+}
+
+variable "name_outside_allowall_inbound" {
+  default = "outside-allowall-inbound"
+}
+
+variable "name_outside_allowall_outbound" {
+  default = "outside-allowall-outbound"
+}
+
+variable "name_management_rules" {
+  default = "panorama-mgmt-sgrule"
+}
+
+variable "name_vm_management_rules" {
+  default = "vm-mgmt-sgrule"
 }
