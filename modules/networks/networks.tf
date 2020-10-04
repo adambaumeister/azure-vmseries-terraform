@@ -67,7 +67,7 @@ resource "azurerm_network_security_group" "sg-allowall" {
   resource_group_name = azurerm_resource_group.rg.name
 }
 resource "azurerm_subnet" "subnet-outside" {
-  name                 = "${var.name_prefix}${var.sep}${var.name_subnet-outside}"
+  name                 = "${var.name_prefix}${var.sep}${var.name_subnet_outside}"
   address_prefix       = "${var.firewall_vnet_prefix}${var.public_subnet}"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet-vmseries.name

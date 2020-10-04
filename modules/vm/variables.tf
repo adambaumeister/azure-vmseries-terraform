@@ -72,3 +72,93 @@ variable "outbound_lb_backend_pool_id" {
 variable "vm_count" {
   default = 2
 }
+
+
+#  ---   #
+# Naming #
+#  ---   #
+
+# Seperator
+variable "sep" {
+  default = "-"
+}
+
+variable "name_ob_az" {
+  default = "ob-vm-az"
+}
+
+variable "name_ob_pip_fw_mgmt" {
+  default = "ob-fw-pip"
+}
+
+variable "name_ob_pip_fw_public" {
+  default = "ob-pip-fw-public"
+}
+
+variable "name_ob_nic_fw_mgmt" {
+  default = "ob-nic-fw-mgmt"
+}
+
+variable "name_ob_fw_ip_mgmt" {
+  default = "ob-fw-ip-mgmt"
+}
+
+variable "name_ob_nic_fw_private" {
+  default = "ob-nic-fw-private"
+}
+
+variable "name_ob_fw_ip_private" {
+  default = "ob-fw-ip-private"
+}
+
+variable "name_ob_nic_fw_public" {
+  default = "ob-nic-fw-public"
+}
+
+variable "name_ob_fw_ip_public" {
+  default = "ob-fw-ip-public"
+}
+
+variable "name_outbound_fw" {
+  default = "ob-fw"
+}
+
+variable "name_ib_az" {
+  default = "ib-vm-az"
+}
+
+variable "name_ib_pip_fw_mgmt" {
+  default = "ib-fw-pip"
+}
+
+variable "name_ib_pip_fw_public" {
+  default = "ib-pip-fw-public"
+}
+
+variable "name_ib_nic_fw_mgmt" {
+  default = "ib-nic-fw-mgmt"
+}
+
+variable "name_ib_fw_ip_mgmt" {
+  default = "ib-fw-ip-mgmt"
+}
+
+variable "name_ib_nic_fw_private" {
+  default = "ib-nic-fw-private"
+}
+
+variable "name_ib_fw_ip_private" {
+  default = "ib-fw-ip-private"
+}
+
+variable "name_ib_nic_fw_public" {
+  default = "ib-nic-fw-public"
+}
+
+variable "name_ib_fw_ip_public" {
+  default = "ib-fw-ip-public"
+}
+
+variable "name_inbound_fw" {
+  default = "ib-fw"
+}
