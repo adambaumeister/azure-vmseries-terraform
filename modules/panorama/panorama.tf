@@ -2,14 +2,14 @@
 resource "azurerm_public_ip" "panorama-pip-mgmt" {
   allocation_method   = "Static"
   location            = azurerm_resource_group.panorama.location
-  name                = "${var.name_prefix}-panorama-pip"
+  name                = "${var.name_prefix}${var.sep}${var.name_panorama_pip_mgmt}"
   resource_group_name = azurerm_resource_group.panorama.name
 }
 
 # Build the management interface
 resource "azurerm_network_interface" "mgmt" {
   location            = azurerm_resource_group.panorama.location
-  name                = "${var.name_prefix}-nic-mgmt"
+  name                = "${var.name_prefix}${var.sep}${var.name_mgmt}"
   resource_group_name = azurerm_resource_group.panorama.name
   ip_configuration {
     subnet_id                     = var.subnet_mgmt.id
@@ -22,7 +22,7 @@ resource "azurerm_network_interface" "mgmt" {
 
 # Build the Panorama VM
 resource "azurerm_virtual_machine" "panorama" {
-  name                  = "${var.name_prefix}-panorama"
+  name                  = "${var.name_prefix}${var.sep}${var.name_panorama}"
   location              = azurerm_resource_group.panorama.location
   resource_group_name   = azurerm_resource_group.panorama.name
   network_interface_ids = [azurerm_network_interface.mgmt.id]
