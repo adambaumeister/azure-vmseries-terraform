@@ -59,8 +59,6 @@ module "outbound-lb" {
   name_prefix    = var.name_prefix
   private-ip     = var.olb_private_ip
   backend-subnet = module.networks.subnet-private.id
-
-  name_lb        = "outbound-lb"
 }
 
 
