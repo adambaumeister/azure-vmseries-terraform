@@ -23,30 +23,30 @@ resource "azurerm_storage_container" "vm-sc" {
 # inbound
 resource "azurerm_virtual_machine_scale_set" "inbound-scale-set" {
   location            = azurerm_resource_group.vmseries.location
-  name                = "${var.name_prefix}-inbound-scaleset"
+  name                = "${var.name_prefix}${var.sep}${var.name_inbound_scale_set}"
   resource_group_name = azurerm_resource_group.vmseries.name
   upgrade_policy_mode = "Manual"
   network_profile {
-    name    = "${var.name_prefix}-inbound-nic-fw-mgmt-profile"
+    name    = "${var.name_prefix}${var.sep}${var.name_inbound_mgmt_nic_profile}"
     primary = true
     ip_configuration {
-      name      = "${var.name_prefix}-inbound-nic-fw-mgmt"
+      name      = "${var.name_prefix}${var.sep}${var.name_inbound_mgmt_nic_ip}"
       primary   = true
       subnet_id = var.subnet-mgmt.id
       public_ip_address_configuration {
         idle_timeout      = 4
-        name              = "${var.name_prefix}-inbound-fw-mgmt-pip"
-        domain_name_label = "${var.name_prefix}-inbound-vm-mgmt"
+        name              = "${var.name_prefix}${var.sep}${var.name_inbound_fw_mgmt_pip}"
+        domain_name_label = "${var.name_prefix}${var.sep}${var.name_inbound_domain_name_label}"
       }
     }
     ip_forwarding = true
 
   }
   network_profile {
-    name    = "${var.name_prefix}-inbound-nic-fw-public-profile"
+    name    = "${var.name_prefix}${var.sep}${var.name_inbound_public_nic_profile}"
     primary = false
     ip_configuration {
-      name      = "${var.name_prefix}-inbound-nic-fw-public"
+      name      = "${var.name_prefix}${var.sep}${var.name_inbound_public_nic_ip}"
       primary   = false
       subnet_id = var.subnet-public.id
       load_balancer_backend_address_pool_ids = [
@@ -57,10 +57,10 @@ resource "azurerm_virtual_machine_scale_set" "inbound-scale-set" {
   }
 
   network_profile {
-    name    = "${var.name_prefix}-inbound-nic-fw-private-profile"
+    name    = "${var.name_prefix}${var.sep}${var.name_inbound_private_nic_profile}"
     primary = false
     ip_configuration {
-      name      = "${var.name_prefix}-inbound-nic-fw-private"
+      name      = "${var.name_prefix}${var.sep}${var.name_inbound_private_nic_ip}"
       primary   = false
       subnet_id = var.subnet-private.id
     }
@@ -69,7 +69,7 @@ resource "azurerm_virtual_machine_scale_set" "inbound-scale-set" {
 
   os_profile {
     admin_username       = var.username
-    computer_name_prefix = "${var.name_prefix}-inbound-fw"
+    computer_name_prefix = "${var.name_prefix}${var.name_inbound_fw}"
     admin_password       = var.password
   }
   storage_profile_image_reference {
@@ -98,37 +98,37 @@ resource "azurerm_virtual_machine_scale_set" "inbound-scale-set" {
 # Outbound
 resource "azurerm_virtual_machine_scale_set" "outbound-scale-set" {
   location            = azurerm_resource_group.vmseries.location
-  name                = "${var.name_prefix}-outbound-scaleset"
+  name                = "${var.name_prefix}${var.sep}${var.name_outbound_scale_set}"
   resource_group_name = azurerm_resource_group.vmseries.name
   upgrade_policy_mode = "Manual"
 
   network_profile {
-    name    = "${var.name_prefix}-outbound-nic-fw-mgmt-profile"
+    name    = "${var.name_prefix}${var.sep}${var.name_outbound_mgmt_nic_profile}"
     primary = true
     ip_configuration {
-      name      = "${var.name_prefix}-outbound-nic-fw-mgmt"
+      name      = "${var.name_prefix}${var.sep}${var.name_outbound_mgmt_nic_ip}"
       primary   = true
       subnet_id = var.subnet-mgmt.id
       public_ip_address_configuration {
         idle_timeout      = 4
-        name              = "${var.name_prefix}-outbound-fw-mgmt-pip"
-        domain_name_label = "${var.name_prefix}-outbound-vm-mgmt"
+        name              = "${var.name_prefix}${var.sep}${var.name_outbound_fw_mgmt_pip}"
+        domain_name_label = "${var.name_prefix}${var.sep}${var.name_outbound_domain_name_label}"
       }
     }
     ip_forwarding = true
 
   }
   network_profile {
-    name    = "${var.name_prefix}-outbound-nic-fw-public-profile"
+    name    = "${var.name_prefix}${var.sep}${var.name_outbound_public_nic_profile}"
     primary = false
     ip_configuration {
-      name      = "${var.name_prefix}-outbound-nic-fw-public"
+      name      = "${var.name_prefix}${var.sep}${var.name_outbound_public_nic_ip}"
       primary   = false
       subnet_id = var.subnet-public.id
       public_ip_address_configuration {
         idle_timeout      = 4
-        name              = "${var.name_prefix}-outbound-fw-public-pip"
-        domain_name_label = "${var.name_prefix}-outbound-vm-public"
+        name              = "${var.name_prefix}${var.sep}${var.name_outbound_fw_public_pip}"
+        domain_name_label = "${var.name_prefix}${var.sep}${var.name_outbound_public_domain_name_label}"
       }
     }
     ip_forwarding = true
@@ -136,10 +136,10 @@ resource "azurerm_virtual_machine_scale_set" "outbound-scale-set" {
   }
 
   network_profile {
-    name    = "${var.name_prefix}-outbound-nic-fw-private-profile"
+    name    = "${var.name_prefix}${var.sep}${var.name_outbound_private_nic_profile}"
     primary = false
     ip_configuration {
-      name                                   = "${var.name_prefix}-outbound-nic-fw-private"
+      name                                   = "${var.name_prefix}${var.sep}${var.name_outbound_private_nic_ip}"
       primary                                = false
       subnet_id                              = var.subnet-private.id
       load_balancer_backend_address_pool_ids = [var.private_backend_pool_id]
@@ -150,8 +150,9 @@ resource "azurerm_virtual_machine_scale_set" "outbound-scale-set" {
 
   os_profile {
     admin_username       = var.username
-    computer_name_prefix = "${var.name_prefix}-outbound-fw"
+    computer_name_prefix = "${var.name_prefix}${var.sep}${var.name_outbound_fw}"
     admin_password       = var.password
+
   }
   storage_profile_image_reference {
     publisher = "paloaltonetworks"

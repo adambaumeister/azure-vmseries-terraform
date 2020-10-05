@@ -1,7 +1,7 @@
 
 resource "azurerm_availability_set" "ob-az" {
   location = var.location
-  name = "${var.name_prefix}-ob-vm-az"
+  name = "${var.name_prefix}${var.sep}${var.name_ob_az}"
   resource_group_name = var.resource_group.name
 }
 
@@ -10,7 +10,7 @@ resource "azurerm_public_ip" "ob-pip-fw-mgmt" {
   count               = var.vm_count
   allocation_method   = "Static"
   location            = var.resource_group.location
-  name                = "${var.name_prefix}--ob-fw-pip-${count.index}"
+  name                = "${var.name_prefix}${var.sep}${var.name_ob_pip_fw_mgmt}${var.sep}${count.index}"
   sku                 = "standard"
   resource_group_name = var.resource_group.name
 }
@@ -19,7 +19,7 @@ resource "azurerm_public_ip" "ob-pip-fw-public" {
   count               = var.vm_count
   allocation_method   = "Static"
   location            = var.resource_group.location
-  name                = "${var.name_prefix}-ob-outside-fw-pip-${count.index}"
+  name                = "${var.name_prefix}${var.sep}${var.name_ob_pip_fw_public}${var.sep}${count.index}"
   sku                 = "standard"
   resource_group_name = var.resource_group.name
 }
@@ -27,11 +27,11 @@ resource "azurerm_public_ip" "ob-pip-fw-public" {
 resource "azurerm_network_interface" "ob-nic-fw-mgmt" {
   count               = var.vm_count
   location            = var.resource_group.location
-  name                = "${var.name_prefix}-ob-nic-fw-mgmt-${count.index}"
+  name                = "${var.name_prefix}${var.sep}${var.name_ob_nic_fw_mgmt}${var.sep}${count.index}"
   resource_group_name = var.resource_group.name
   ip_configuration {
     subnet_id                     = var.subnet-mgmt.id
-    name                          = "${var.name_prefix}-ob-fw-ip-mgmt"
+    name                          = "${var.name_prefix}${var.sep}${var.name_ob_fw_ip_mgmt}"
     private_ip_address_allocation = "dynamic"
     public_ip_address_id          = azurerm_public_ip.ob-pip-fw-mgmt[count.index].id
   }
@@ -40,11 +40,11 @@ resource "azurerm_network_interface" "ob-nic-fw-mgmt" {
 resource "azurerm_network_interface" "ob-nic-fw-private" {
   count               = var.vm_count
   location            = var.resource_group.location
-  name                = "${var.name_prefix}-ob-nic-fw-private-${count.index}"
+  name                = "${var.name_prefix}${var.sep}${var.name_ob_nic_fw_private}${var.sep}${count.index}"
   resource_group_name = var.resource_group.name
   ip_configuration {
     subnet_id                     = var.subnet-private.id
-    name                          = "${var.name_prefix}-ob-fw-ip-inside-${count.index}"
+    name                          = "${var.name_prefix}${var.sep}${var.name_ob_fw_ip_private}"
     private_ip_address_allocation = "dynamic"
     //private_ip_address = "172.16.1.10"
   }
@@ -54,11 +54,11 @@ resource "azurerm_network_interface" "ob-nic-fw-private" {
 resource "azurerm_network_interface" "ob-nic-fw-public" {
   count               = var.vm_count
   location            = var.resource_group.location
-  name                = "${var.name_prefix}-ob-nic-fw-public-${count.index}"
+  name                = "${var.name_prefix}${var.sep}${var.name_ob_nic_fw_public}${var.sep}${count.index}"
   resource_group_name = var.resource_group.name
   ip_configuration {
     subnet_id                     = var.subnet-public.id
-    name                          = "${var.name_prefix}-ob-fw-ip-outside-${count.index}"
+    name                          = "${var.name_prefix}${var.sep}${var.name_ob_fw_ip_public}"
     private_ip_address_allocation = "dynamic"
     //private_ip_address = "172.16.2.10"
     public_ip_address_id = azurerm_public_ip.ob-pip-fw-public[count.index].id
@@ -78,7 +78,7 @@ resource "azurerm_network_interface_backend_address_pool_association" "outbound-
 resource "azurerm_virtual_machine" "outbound-fw" {
   count    = var.vm_count
   location = var.resource_group.location
-  name     = "${var.name_prefix}-ob-fw-${count.index}"
+  name     = "${var.name_prefix}${var.sep}${var.name_outbound_fw}${count.index}"
   network_interface_ids = [
     azurerm_network_interface.ob-nic-fw-mgmt[count.index].id,
     azurerm_network_interface.ob-nic-fw-public[count.index].id,

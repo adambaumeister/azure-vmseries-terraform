@@ -1,6 +1,6 @@
 # Permit the traffic between the vmseries VNET and the Panorama VNET
 resource "azurerm_network_security_rule" "inter-vnet-rule" {
-  name                        = "${var.name_prefix}-sgrule-intervnet"
+  name                        = "${var.name_prefix}${var.sep}${var.name_inter_vnet_rule}"
   resource_group_name         = azurerm_resource_group.rg.name
   access                      = "Allow"
   direction                   = "Inbound"
@@ -14,7 +14,7 @@ resource "azurerm_network_security_rule" "inter-vnet-rule" {
 }
 # Permit All outbound traffic in vm-series Management VNET
 resource "azurerm_network_security_rule" "vmseries-allowall-outbound" {
-  name                        = "${var.name_prefix}-sgrule-outbound"
+  name                        = "${var.name_prefix}${var.sep}${var.name_vmseries_allowall_outbound}"
   resource_group_name         = azurerm_resource_group.rg.name
   access                      = "Allow"
   direction                   = "Outbound"
@@ -28,7 +28,7 @@ resource "azurerm_network_security_rule" "vmseries-allowall-outbound" {
 }
 # Allow all vnets to talk to the VM management network
 resource "azurerm_network_security_rule" "vmseries-mgmt-inbound" {
-  name                        = "${var.name_prefix}-sgrule-mgmt"
+  name                        = "${var.name_prefix}${var.sep}${var.name_vmseries_mgmt_inbound}"
   resource_group_name         = azurerm_resource_group.rg.name
   access                      = "Allow"
   direction                   = "Inbound"
@@ -43,7 +43,7 @@ resource "azurerm_network_security_rule" "vmseries-mgmt-inbound" {
 
 # Permit All outbound traffic in Panorma Managemnet VNET
 resource "azurerm_network_security_rule" "panorama-allowall-outbound" {
-  name                        = "${var.name_prefix}-sgrule-allowmgmt"
+  name                        = "${var.name_prefix}${var.sep}${var.name_panorama_allowall_outbound}"
   resource_group_name         = azurerm_resource_group.rg.name
   access                      = "Allow"
   direction                   = "Outbound"
@@ -59,7 +59,7 @@ resource "azurerm_network_security_rule" "panorama-allowall-outbound" {
 # Permit All Inbound traffic in Outside VNET
 # required due to Standard type LB
 resource "azurerm_network_security_rule" "outside-allowall-inbound" {
-  name                        = "${var.name_prefix}-sgrule-allowin"
+  name                        = "${var.name_prefix}${var.sep}${var.name_outside_allowall_inbound}"
   resource_group_name         = azurerm_resource_group.rg.name
   access                      = "Allow"
   direction                   = "Inbound"
@@ -72,7 +72,7 @@ resource "azurerm_network_security_rule" "outside-allowall-inbound" {
   destination_port_range      = "*"
 }
 resource "azurerm_network_security_rule" "outside-allowall-outbound" {
-  name                        = "${var.name_prefix}-sgrule-allowout"
+  name                        = "${var.name_prefix}${var.sep}${var.name_vmseries_allowall_outbound}"
   resource_group_name         = azurerm_resource_group.rg.name
   access                      = "Allow"
   direction                   = "Outbound"
@@ -88,7 +88,7 @@ resource "azurerm_network_security_rule" "outside-allowall-outbound" {
 # Permit the external (admin) ips access  to the management networks.
 resource "azurerm_network_security_rule" "management-rules" {
   for_each                    = var.management_ips
-  name                        = "${var.name_prefix}-panorama-mgmt-sgrule-${each.value}-mgmt"
+  name                        = "${var.name_prefix}${var.sep}${var.name_management_rules}${var.sep}${each.value}"
   resource_group_name         = azurerm_resource_group.rg.name
   access                      = "Allow"
   direction                   = "Inbound"
@@ -104,7 +104,7 @@ resource "azurerm_network_security_rule" "management-rules" {
 # Permit the external (admin) ips access  to the management networks.
 resource "azurerm_network_security_rule" "vm-management-rules" {
   for_each                    = var.management_ips
-  name                        = "${var.name_prefix}-panorama-mgmt-sgrule-${each.value}-mgmt"
+  name                        = "${var.name_prefix}${var.sep}${var.name_management_rules}${var.sep}${each.value}"
   resource_group_name         = azurerm_resource_group.rg.name
   access                      = "Allow"
   direction                   = "Inbound"

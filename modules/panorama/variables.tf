@@ -35,3 +35,44 @@ variable "panorama_sku" {
 variable "panorama_version" {
   default = "9.0.5"
 }
+
+
+#  ---   #
+# Naming #
+#  ---   #
+
+# Seperator
+variable "sep" {
+  default = "-"
+}
+
+variable "name_rg" {
+  default = "rg-panorama"
+}
+
+variable "name_bootstrap_share" {
+  default = "bootstrap"
+}
+
+variable "name_inbound_bootstrap_storage_share" {
+  default = "ibbootstrapshare"
+}
+
+variable "name_outbound-bootstrap-storage-share" {
+  default = "obbootstrapshare"
+}
+variable "name_vm_sc" {
+  default = "vm-container"
+}
+
+variable "name_panorama_pip_mgmt" {
+  default = "panorama-pip"
+}
+
+variable "name_mgmt" {
+  default = "nic-mgmt"
+}
+
+variable "name_panorama" {
+  default = "panorama"
+}

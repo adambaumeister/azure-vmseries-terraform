@@ -1,19 +1,19 @@
 resource "azurerm_resource_group" "rg" {
   location = var.location
-  name     = "${var.name_prefix}-rg-networks"
+  name     = "${var.name_prefix}${var.sep}${var.name_rg}"
 }
 ### Build the Panorama networks first
 # Create the out of band network for panorama
 resource "azurerm_virtual_network" "vnet-panorama-mgmt" {
   address_space       = ["${var.management_vnet_prefix}0.0/16"]
   location            = var.location
-  name                = "${var.name_prefix}-vnet-panorama-mgmt"
+  name                = "${var.name_prefix}${var.sep}${var.name_vnet_panorama_mgmt}"
   resource_group_name = azurerm_resource_group.rg.name
 }
 # Security group for the Panorama MGMT network
 resource "azurerm_network_security_group" "sg-panorama-mgmt" {
   location            = azurerm_resource_group.rg.location
-  name                = "${var.name_prefix}-sg-panorama-mgmt"
+  name                = "${var.name_prefix}${var.sep}${var.name_panorama_sg}"
   resource_group_name = azurerm_resource_group.rg.name
 }
 resource "azurerm_subnet_network_security_group_association" "panorama-mgmt-sa" {
@@ -21,7 +21,7 @@ resource "azurerm_subnet_network_security_group_association" "panorama-mgmt-sa" 
   subnet_id                 = azurerm_subnet.subnet-panorama-mgmt.id
 }
 resource "azurerm_subnet" "subnet-panorama-mgmt" {
-  name                 = "${var.name_prefix}-net-panorama-mgmt"
+  name                 = "${var.name_prefix}${var.sep}${var.name_panorama_subnet_mgmt}"
   address_prefix       = "${var.management_vnet_prefix}${var.management_subnet}"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet-panorama-mgmt.name
@@ -31,12 +31,12 @@ resource "azurerm_subnet" "subnet-panorama-mgmt" {
 resource "azurerm_virtual_network" "vnet-vmseries" {
   address_space       = ["${var.firewall_vnet_prefix}0.0/16"]
   location            = azurerm_resource_group.rg.location
-  name                = "${var.name_prefix}-vnet-vmseries"
+  name                = "${var.name_prefix}${var.sep}${var.name_vnet_vmseries}"
   resource_group_name = azurerm_resource_group.rg.name
 }
 # Management for VM-series
 resource "azurerm_subnet" "subnet-mgmt" {
-  name                 = "${var.name_prefix}-net-vmseries-mgmt"
+  name                 = "${var.name_prefix}${var.sep}${var.name_subnet_mgmt}"
   address_prefix       = "${var.firewall_vnet_prefix}${var.vm_management_subnet}"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet-vmseries.name
@@ -44,7 +44,7 @@ resource "azurerm_subnet" "subnet-mgmt" {
 }
 resource "azurerm_network_security_group" "sg-mgmt" {
   location            = azurerm_resource_group.rg.location
-  name                = "${var.name_prefix}-sg-vmmgmt"
+  name                = "${var.name_prefix}${var.sep}${var.name_sg_mgmt}"
   resource_group_name = azurerm_resource_group.rg.name
 }
 resource "azurerm_subnet_network_security_group_association" "mgmt-sa" {
@@ -54,7 +54,7 @@ resource "azurerm_subnet_network_security_group_association" "mgmt-sa" {
 
 # private network - don't need NSG here?
 resource "azurerm_subnet" "subnet-inside" {
-  name                 = "${var.name_prefix}-net-inside"
+  name                 = "${var.name_prefix}${var.sep}${var.name_subnet_inside}"
   address_prefix       = "${var.firewall_vnet_prefix}${var.private_subnet}"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet-vmseries.name
@@ -63,11 +63,11 @@ resource "azurerm_subnet" "subnet-inside" {
 # Public network
 resource "azurerm_network_security_group" "sg-allowall" {
   location            = azurerm_resource_group.rg.location
-  name                = "${var.name_prefix}-sg-allowall"
+  name                = "${var.name_prefix}${var.sep}${var.name_sg_allowall}"
   resource_group_name = azurerm_resource_group.rg.name
 }
 resource "azurerm_subnet" "subnet-outside" {
-  name                 = "${var.name_prefix}-net-outside"
+  name                 = "${var.name_prefix}${var.sep}${var.name_subnet_outside}"
   address_prefix       = "${var.firewall_vnet_prefix}${var.public_subnet}"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet-vmseries.name
@@ -84,7 +84,7 @@ resource "azurerm_subnet_network_security_group_association" "sg-inside-associat
 
 resource "azurerm_route_table" "udr-inside" {
   location            = var.location
-  name                = "${var.name_prefix}-udr-inside"
+  name                = "${var.name_prefix}${var.sep}${var.name_udr_inside}"
   resource_group_name = azurerm_resource_group.rg.name
   route {
     address_prefix         = "0.0.0.0/0"
@@ -102,13 +102,13 @@ resource "azurerm_subnet_route_table_association" "rta" {
 
 # Peer the VNETs from the vm-series and panorama module
 resource "azurerm_virtual_network_peering" "panorama-fw-peer" {
-  name                      = "${var.name_prefix}-mgmt-peering"
+  name                      = "${var.name_prefix}${var.sep}${var.name_panorama_fw_peer}"
   remote_virtual_network_id = azurerm_virtual_network.vnet-panorama-mgmt.id
   resource_group_name       = azurerm_resource_group.rg.name
   virtual_network_name      = azurerm_virtual_network.vnet-vmseries.name
 }
 resource "azurerm_virtual_network_peering" "fw-panorama-peer" {
-  name                      = "${var.name_prefix}-mgmt-peering-r"
+  name                      = "${var.name_prefix}${var.sep}${var.name_fw_panorama_peer}"
   remote_virtual_network_id = azurerm_virtual_network.vnet-vmseries.id
   resource_group_name       = azurerm_resource_group.rg.name
   virtual_network_name      = azurerm_virtual_network.vnet-panorama-mgmt.name

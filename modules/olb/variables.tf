@@ -13,3 +13,36 @@ variable "private-ip" {
 
 variable "backend-subnet" {
 }
+
+#  ---   #
+# Naming #
+#  ---   #
+
+# Separator
+variable "sep" {
+  default = "-"
+}
+
+variable "name_rg" {
+  default = "olb-rg"
+}
+
+variable "name_lb" {
+  default = "olb"
+}
+
+variable "name_lb_backend" {
+  default = "olb-backend"
+}
+
+variable "name_probe" {
+  default = "olb-probe-80"
+}
+
+variable "name_lb_rule" {
+  default = "lbrule-outbound"
+}
+
+variable "name_lb_fip" {
+  default = "olb-fib"
+}
