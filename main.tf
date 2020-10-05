@@ -37,6 +37,9 @@ module "panorama" {
 
   panorama_sku     = var.panorama_sku
   panorama_version = var.panorama_version
+
+  # must be between 3 and 24 characters long
+  name_bootstrap_share = "abbootstrap"
 }
 
 # Deploy the inbound load balancer for traffic into the azure environment
@@ -56,6 +59,8 @@ module "outbound-lb" {
   name_prefix    = var.name_prefix
   private-ip     = var.olb_private_ip
   backend-subnet = module.networks.subnet-private.id
+
+  name_lb        = "outbound-lb"
 }
 
 

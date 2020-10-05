@@ -27,6 +27,41 @@ terraform apply --var-file=my_variables.tfvars
 
 Some important variables (and an example of a tfvars file) are in [example.tfvars](https://github.com/adambaumeister/azure-vmseries-terraform/blob/master/example.tfvars).
 
+# Naming
+
+The name of every resource in this code is configurable.
+
+By default every resource name will use the variable *name_prefix* ahead of a boilerplate name that describes the resource.
+For example, if you configure name_prefix as "myprefix" then the inbound load balancer will be named "myprefix-lb"
+
+Each module exposes all of the names to the root module using the variables prefixed with **name_**
+
+For example, see the following variable from module.panorama
+```hcl
+variable "name_rg" {
+  default = "rg-panorama"
+}
+```
+We don't mirror these within the main variables definition because, well, it'd end up a mess.
+
+If you want to override any names with custom naming you therefore pass the customizations through to the module within
+**main.tf**. 
+
+See the following example in which the name of the load balancer is overidden. 
+
+```hcl
+# Deploy the outbound load balancer for traffic out of the azure environment
+module "outbound-lb" {
+  source         = "./modules/olb"
+  location       = var.location
+  name_prefix    = var.name_prefix
+  private-ip     = var.olb_private_ip
+  backend-subnet = module.networks.subnet-private.id
+  
+  name_lb        = "outbound-lb"
+}
+```
+
 ## Disabling the Bootstrap process
 
 This deployment automatically configures bootstrapping to facilitate the scale set deployment. In some cases though, 
@@ -55,15 +90,8 @@ Note you can delete several bootstrap related variables and the dependency on th
 # Deploying without Panorama
 
 If you don't want to deploy Panorama, or more likely you already *have* a panorama instance deployed, you can customize
-this deployment to not include it. 
+this deployment to not include it simply delete the file [modules/panorama/panorama.tf](https://github.com/adambaumeister/azure-vmseries-terraform/blob/master/modules/panorama/panorama.tf)
 
-1. Deleting [modules/panorama/panorama.tf](https://github.com/adambaumeister/azure-vmseries-terraform/blob/master/modules/panorama/panorama.tf)
-2. Removing the external data source that retrieves the auth key from [modules/panorama/bootstrap.tf](https://github.com/adambaumeister/azure-vmseries-terraform/blob/master/modules/panorama/bootstrap.tf)
-```
-data "external" "panorama_bootstrap" {
-...
-}
-```
 This will still deploy the bootstrap and VHD storage requirements, but it won't add any of the bootstrap files.
 
 # Deploying Without ScaleSets
@@ -77,4 +105,3 @@ To use it, simply change directory to *no-vmss* before running terraform as norm
 terraform init
 terraform apply --var-file=example.tfvars
 ```
-

@@ -61,7 +61,7 @@ variable "name_vnet_panorama_mgmt" {
 }
 
 variable "name_rg" {
-  default = "vnet-panorama-mgmt"
+  default = "networks"
 }
 
 variable "name_panorama_sg" {
