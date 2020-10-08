@@ -1,3 +1,10 @@
+terraform {
+  required_providers {
+    azurerm = { version = "~> 2.20" }
+    tls     = { version = "~> 2.2" }
+  }
+}
+
 # Create a resource group if it doesn't exist
 resource "azurerm_resource_group" "rg" {
   location = var.location
