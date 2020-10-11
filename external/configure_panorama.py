@@ -126,6 +126,8 @@ def upload_license(path,
     r = subprocess.run(
         cmd.split(), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
+    if r.stderr:
+        raise SystemError(f"Failed to upload file: {cmd}: {r.stderr}")
     results.append(r)
     return results
 
@@ -171,8 +173,7 @@ def show_bootstrap(p: Panos):
 def upload_licenses(query):
     """
     Upload any licenses that are stored in the "upload" directory
-    :param query:
-    :return:
+    If no license, simply return
     """
     license_dir = os.path.join(query["output_dir"], LICENSE_DIR)
     if not os.path.isdir(license_dir):
@@ -189,6 +190,7 @@ def upload_licenses(query):
         storage_share_name=query["outbound_storage_share_name"],
         primary_access_key=query["storage_account_key"]
     )
+    return True
 
 
 def bootstrap(query):
