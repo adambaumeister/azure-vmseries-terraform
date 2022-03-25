@@ -65,7 +65,7 @@ ensuring the IPv4 Type is set to DHCP and a management config is attached that p
 
 <img src="images/pan_mc.png" alt="interfaces" class="inline"/>
 
-Add a virtual router for each template. Configure the following routes in the inbound template;
+Add a virtual router for each template. Configure the following routes in the outbound template;
 
 | Destination     | Next Hop     | Description     |
 | :------------- | :----------: | -----------: |
@@ -73,7 +73,7 @@ Add a virtual router for each template. Configure the following routes in the in
 |  10.0.0.0/8| 10.110.0.1   |   Route to the Azure internal networks   |
 |  168.63.129.16/32 | 10.110.0.1   |   LB health probe IP address on PRIVATE interface  |
  
- Configure the following routes in the outbound template;
+ Configure the following routes in the inbound template;
  
  | Destination     | Next Hop     | Description     |
 | :------------- | :----------: | -----------: |

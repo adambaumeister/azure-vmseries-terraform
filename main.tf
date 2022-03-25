@@ -83,6 +83,9 @@ module "vm-series" {
   vhd-container           = module.panorama.storage-container-name
   private_backend_pool_id = module.outbound-lb.backend-pool-id
   public_backend_pool_id  = module.inbound-lb.backend-pool-id
+
+  vm_series_count = var.vm_series_count
+  vm_series_sku = var.vm_series_sku
 }
 
 # Create a test VNET

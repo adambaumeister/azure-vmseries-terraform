@@ -74,7 +74,7 @@ resource "azurerm_virtual_machine_scale_set" "inbound-scale-set" {
     version   = var.vm_series_version
   }
   sku {
-    capacity = 1
+    capacity = var.vm_series_count
     name     = var.vmseries_size
   }
   storage_profile_os_disk {
@@ -165,7 +165,7 @@ resource "azurerm_virtual_machine_scale_set" "outbound-scale-set" {
     version   = var.vm_series_version
   }
   sku {
-    capacity = 1
+    capacity = var.vm_series_count
     name     = var.vmseries_size
   }
   plan {
